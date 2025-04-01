@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Custom T-Shirt Designer</title>
+        <link rel="stylesheet" href="styles/customTshirt.css">
+    </head>
+    <body>
+        <div class="customs-main-container">
+            <!-- T-Shirt Image Section -->
+            <div class="t-shirt-image">
+                <!-- Toggle Button for Front/Back -->
+                <button id="toggleSide">Show Back Side</button>
+                <form action="/custom" method="post">
+
+                    <!-- Front View -->
+                    <div id="tshirt-front" class="tshirt-side">
+                        <div id="tshirt-div-front" class="tshirt-div">
+                            <img
+                                id="tshirt-backgroundpicture-front"
+                                src="assests/t-shirt.png"
+                                alt="T-Shirt Front" />
+                            <div class="drawing-area">
+                                <canvas id="tshirt-canvas-front" width="200"
+                                    height="250"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Back View -->
+                    <div id="tshirt-back" class="tshirt-side"
+                        style="display: none;">
+                        <div id="tshirt-div-back" class="tshirt-div">
+                            <img
+                                id="tshirt-backgroundpicture-back"
+                                src="assests/t-shirt.png"
+                                alt="T-Shirt Back" />
+                            <div class="drawing-area">
+                                <canvas id="tshirt-canvas-back" width="200"
+                                    height="250"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Customization Controls -->
+            <div class="custom-t-shirt">
+                <p>To remove a loaded picture on the T-Shirt, select it and
+                    press the <kbd>DEL</kbd> key.</p>
+
+                <!-- T-Shirt Design Dropdown -->
+                <label for="tshirt-design">T-Shirt Design:</label>
+                <select id="tshirt-design">
+                    <option value>Select a design...</option>
+                    <option
+                        value="assests/batman.png">Batman</option>
+                    
+                </select>
+
+                <!-- T-Shirt Color Dropdown -->
+                <label for="tshirt-color">T-Shirt Color:</label>
+                <select id="tshirt-color">
+                    <option value="#ffffff" style="color: #000000; background-color: #ffffff;">White</option>
+                    <option value="#000000" style="color: #ffffff; background-color: #000000;">Black</option>
+                    <option value="#ff0000" style="color: #ffffff; background-color: #ff0000;">Red</option>
+                    <option value="#008000" style="color: #ffffff; background-color: #008000;">Green</option>
+                    <option value="#ffff00" style="color: #000000; background-color: #ffff00;">Yellow</option>
+                    <option value="#0000ff" style="color: #ffffff; background-color: #0000ff;">Blue</option>
+                    <option value="#ff1493" style="color: #ffffff; background-color: #ff1493;">Pink</option>
+                    <option value="#a52a2a" style="color: #ffffff; background-color: #a52a2a;">Brown</option>
+                    <option value="#800080" style="color: #ffffff; background-color: #800080;">Purple</option>
+                    <option value="#ffa500" style="color: #ffffff; background-color: #ffa500;">Orange</option>
+                    <option value="#c0c0c0" style="color: #000000; background-color: #c0c0c0;">Gray</option>
+                    <option value="#00ffff" style="color: #000000; background-color: #00ffff;">Cyan</option>
+                    <option value="#ffc0cb" style="color: #000000; background-color: #ffc0cb;">Light Pink</option>
+                    <option value="#8b4513" style="color: #ffffff; background-color: #8b4513;">Saddle Brown</option>
+                </select>
+
+                <!-- Upload Custom Image -->
+                <label for="tshirt-custompicture">Upload Your Own
+                    Design:</label>
+                <input type="file" id="tshirt-custompicture" accept="image/*" />
+
+                <!-- Add Custom Text -->
+                <label for="tshirt-text">Add Custom Text:</label>
+                <input type="text" id="tshirt-text"
+                    placeholder="Enter text here..." />
+                <label for="font-select">Select Font:</label>
+                <select id="font-select">
+                    <option value="Arial" style="font-family: Arial;">Arial</option>
+                    <option value="Courier New" style="font-family: 'Courier New';">Courier New</option>
+                    <option value="Georgia" style="font-family: Georgia;">Georgia</option>
+                    <option value="Impact" style="font-family: Impact;">Impact</option>
+                    <option value="Tahoma" style="font-family: Tahoma;">Tahoma</option>
+                    <option value="Times New Roman" style="font-family: 'Times New Roman';">Times New Roman</option>
+                    <option value="Verdana" style="font-family: Verdana;">Verdana</option>
+                </select>
+            
+                <button id="addText">Add Text</button>
+
+                <!-- Clear Canvas -->
+                <button id="clearCanvas">Clear Design</button>
+
+                <!-- Download Image -->
+                <button id="downloadImage">Download Image</button>
+
+                <!-- Save Design -->
+                <button id="saveImage">Save Design</button>
+            </div>
+        </div>
+
+        <!-- Scripts -->
+        <script
+            src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.0/fabric.min.js"></script>
+        <script
+            src="https://cdnjs.cloudflare.com/ajax/libs/dom-to-image/2.6.0/dom-to-image.min.js"></script>
+        <script src="scripts/customTshirt.js"></script>
+    </body>
+</html>

@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Homepage</title>
+    <link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <link rel="stylesheet" href="styles/styles.css">
+    <link rel="stylesheet" href="styles/slider.css">
+    <link rel="stylesheet" href="styles/footer.css">
+    <link rel="stylesheet" href="styles/horizontal.css">
+    <link rel="stylesheet" href="styles/navbar.css">
+    <link rel="stylesheet" href="styles/loader.css">
+    <link rel="stylesheet" href="styles/posterSlider.css">
+    <link rel="stylesheet" href="styles/testimonial.css">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bungee+Tint&family=Dancing+Script:wght@400..700&family=Grey+Qo&family=Kalnia+Glaze:wght@100..700&family=Matemasie&family=Noto+Serif:ital,wght@0,100..900;1,100..900&family=Smooch&display=swap"
+      rel="stylesheet">
+
+    <link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+
+  </head>
+
+  <body>
+    <!-- Loader Container -->
+    <div id="loader" class="loader">
+      <div class="loader-container" id="page5">
+        <img class="sword-left"
+          src="https://cdn4.iconfinder.com/data/icons/video-game-items-concepts/128/weapon-katana-512.png"
+          alt="Sword Left" />
+        <img class="ninja" id="ninja" src="/assests/loaderNinja.png"
+          alt="Ninja" />
+        <img class="sword-right"
+          src="https://cdn4.iconfinder.com/data/icons/video-game-items-concepts/128/weapon-katana-512.png"
+          alt="Sword Right" />
+        <img class="moon"
+          src="https://www.seekpng.com/png/full/1-16744_red-moon-png-orange-moon-png.png"
+          alt="Moon" />
+        <div class="brand-name"><img
+            src="assests/horizontalLogo-removebg-preview.png" alt="Logo"></div>
+      </div>
+      <audio id="background-sound" src="/assests/sword-ninja.mp3" autoplay muted
+        loop></audio>
+    </div>
+
+    <!-- Homepage Content -->
+    <div class="homepage-content" id="homepage-content" style="display: none;">
+      <!-- marquee for notification -->
+      <div class="notification-bar">
+        <span class="notification-text">🚀 Get the Great offer and deatails
+          of the Year. Stay connect ! Stay updated
+          🔥</span>
+      </div>
+      <div class="notification-bar">
+        <span class="notification-text">
+        </span>
+      </div>
+      <!-- this is the responsive navbar -->
+      <nav class="As-navbar">
+        <div class="As-container">
+          <ul class="As-nav-links">
+            <li><a href="#"><i class="fas fa-home"></i>
+                <span>Home</span></a></li>
+            <li><a href="/about"><i class="fas fa-info-circle"></i>
+                <span>About Us</span></a></li>
+            <li><a href="/Products"><i class="fas fa-box"></i> <span>All
+                  Products</span></a></li>
+            <li><a href="/contact"><i class="fas fa-phone"></i><span>Contact
+                  us</span></a></li>
+          </ul>
+          <div class="As-logo">
+            <a href="#"><img src="assests/horizontalLogo-removebg-preview.png"
+                alt="Logo"></a>
+          </div>
+          <div class="AS-nav-btn">
+            <% if (user) { %>
+            <li><a href="/cart"><i class="fas fa-shopping-cart"></i>
+                <span>Cart</span></a></li>
+            <li><a href="/CustomTshirt"><i class="fa fa-shirt"></i><span>Custom
+                  Tshirt</span></a></li>
+            <!-- Dropdown for logged-in users -->
+            <!-- Profile Dropdown -->
+            <div class="profile-dropdown">
+              <div class="profile-trigger">
+                <li><a href="#"><i
+                      class="fas fa-user-circle"></i><span>Profile</span></a></li>
+              </div>
+              <div class="profile-details">
+                <p><i class="fas fa-user"></i> Name: <%= user.name %>
+                </p>
+                <p><i class="fas fa-envelope"></i> Email: <%= user.email %>
+                </p>
+                <p><i class="fas fa-phone"></i> Phone: <%= user.phone || 'N/A'
+                  %>
+                </p>
+                <p><i class="fas fa-calendar"></i> Member Since: <%=
+                  user.createdAt ? new
+                  Date(user.createdAt).toDateString() : 'N/A' %>
+                </p>
+              </div>
+            </div>
+            <li><a href="/logout"><i
+                  class="fas fa-sign-out-alt"></i><span>Logout</span>
+              </a></li>
+
+            <% } else { %>
+            <!-- Sign-up link for guests -->
+            <li><a href="/signup"><i class="fas fa-user-plus"></i>
+                <span>Sign-Up</span></a></li>
+            <% } %>
+          </div>
+
+          <div class="As-hamburger">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+        </div>
+      </nav>
+      <!-- this is slider of poster  -->
+      <div class="slider" id="slider"
+        style="--img-prev:url(https://s3.envato.com/files/104386263/img%20preview%20fashion%20style%20FB/02_preview2.jpg);">
+        <div class="slider__content" id="slider-content">
+          <div class="slider__images">
+            <% if (posters.length > 0) { %>
+                <% posters.forEach((poster, index) => { %>
+                    <div class="slider__images-item <%= index === 0 ? 'slider__images-item--active' : '' %>" data-id="<%= index + 1 %>">
+                        <img src="data:image/jpeg;base64,<%= poster %>" alt="Fashion Style <%= index + 1 %>">
+                    </div>
+                <% }); %>
+            <% } %>
+        </div>
+        <div class="slider__text">
+          <% posters.forEach((poster, index) => { %>
+              <div class="slider__text-item <%= index === 0 ? 'slider__text-item--active' : '' %>" data-id="<%= index + 1 %>">
+                  <div class="slider__text-item-head">
+                      <h3><%= headings[index] || 'Default Heading' %></h3>
+                  </div>
+                  <div class="slider__text-item-info">
+                      <p><%= titles[index] || 'Default Title' %></p>
+                  </div>
+              </div>
+          <% }) %>
+      </div>
+        </div>
+        <div class="slider__nav">
+          <div class="slider__nav-arrows">
+            <div class="slider__nav-arrow slider__nav-arrow--left" id="left">to
+              left</div>
+            <div class="slider__nav-arrow slider__nav-arrow--right"
+              id="right">to right</div>
+          </div>
+          <div class="slider__nav-dots" id="slider-dots">
+            <div class="slider__nav-dot slider__nav-dot--active"
+              data-id="1"></div>
+            <div class="slider__nav-dot" data-id="2"></div>
+            <div class="slider__nav-dot" data-id="3"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- this is the first section -->
+      <!-- <div class="page1" id="page1">
+      <img src="assests/new.png" alt="h" id="move_image" class="move_image">
+      <img src="assests/poster1.jpg" alt class="poster_image">
+    </div> -->
+
+      <!-- this is the second section -->
+      <div class="page2" id="page2">
+        <% for(let i=0; i <= 3 ; i++) { %>
+        <div class="card">
+          <div class="imgBox">
+            <div class="front">
+              <img
+                src="<%= Products[i].front_image %>"
+                alt="<%= Products[i].name %>">
+            </div>
+            <div class="back">
+              <img
+                src="<%= Products[i].back_image %>"
+                alt="<%= Products[i].name %>">
+            </div>
+          </div>
+          <div class="contentBox">
+            <h3>
+              <%= Products[i].name %>
+            </h3>
+            <h2 class="price"><small>₹<%= Products[i].price
+                %></small></h2>
+            <a href="/product_details/<%= Products[i]._id %>"
+              class="buy">Buy Now</a>
+          </div>
+        </div>
+        <% } %>
+      </div>
+      <!-- this is third section  -->
+      <div class="page3" id="page3">
+        <div class="void" id="void">
+          <div class="crop">
+            <ul id="Slider_card-list" style="--count: 6;">
+              <% for(let i=0; i <= 5 && i < Products.length; i++) { %>
+              <li>
+                <div class="Slider_card">
+                  <a
+                    href="/product_details/<%= Products[i]._id %>">
+                    <img
+                      src="<%= Products[i].front_image %>"
+                      alt="<%= Products[i].name %>">
+                  </a>
+                </div>
+              </li>
+              <% } %>
+            </ul>
+
+            <div class="last-circle"></div>
+            <div class="second-circle"></div>
+          </div>
+          <div class="mask"></div>
+          <div class="center-circle"></div>
+        </div>
+      </div>
+      <!-- this is forth section -->
+      <div class="page4" id="page4">
+        <div class="scroller">
+
+          <% for(let i=0; i < 6; i++) { %>
+          <div class="card">
+            <div class="imgBox">
+              <div class="front">
+                <img
+                  src="<%= Products[i].front_image %>"
+                  alt="<%= Products[i].name %>">
+              </div>
+              <div class="back">
+                <img
+                  src="<%= Products[i].back_image %>"
+                  alt="<%= Products[i].name %>">
+              </div>
+            </div>
+            <div class="contentBox">
+              <h3>
+                <%= Products[i].name %>
+              </h3>
+              <h2 class="price"><small>₹<%= Products[i].price
+                  %></small></h2>
+              <a href="/product_details/<%= Products[i]._id %>"
+                class="buy">Buy Now</a>
+            </div>
+          </div>
+          <% } %>
+        </div>
+      </div>
+      <!-- this is testimonial -->
+      <div class="page5" id="page5">
+        <div class="testimonial-container">
+          <figure class="snip1197">
+            <figcaption>
+              <blockquote>Sometimes I think the surest sign that intelligent
+                life exists elsewhere in the universe is that none of it has
+                tried to contact us.</blockquote>
+              <div class="arrow"></div>
+            </figcaption>
+            <img
+              src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/331810/sq-sample10.jpg"
+              alt="sq-sample10" />
+            <div class="author">
+              <h5>Pelican Steve <span>- LittleSnippets</span></h5>
+            </div>
+          </figure>
+          <figure class="snip1197 hover">
+            <figcaption>
+              <blockquote>I don't need to compromise on my principles, because
+                they don't have the slightest bearing on what happens to me
+                anyway.</blockquote>
+              <div class="arrow"></div>
+            </figcaption>
+            <img
+              src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/331810/sq-sample33.jpg"
+              alt="sq-sample33" />
+            <div class="author">
+              <h5>Max Conversion<span>- LittleSnippets</span></h5>
+            </div>
+          </figure><figure class="snip1197">
+            <figcaption>
+              <blockquote>Sometimes I think the surest sign that intelligent
+                life exists elsewhere in the universe is that none of it has
+                tried to contact us.</blockquote>
+              <div class="arrow"></div>
+            </figcaption>
+            <img
+              src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/331810/sq-sample10.jpg"
+              alt="sq-sample10" />
+            <div class="author">
+              <h5>Pelican Steve <span>- LittleSnippets</span></h5>
+            </div>
+          </figure>
+          <figure class="snip1197 hover">
+            <figcaption>
+              <blockquote>I don't need to compromise on my principles, because
+                they don't have the slightest bearing on what happens to me
+                anyway.</blockquote>
+              <div class="arrow"></div>
+            </figcaption>
+            <img
+              src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/331810/sq-sample33.jpg"
+              alt="sq-sample33" />
+            <div class="author">
+              <h5>Max Conversion<span>- LittleSnippets</span></h5>
+            </div>
+          </figure>
+
+        </div>
+      </div>
+
+      <!-- footer  -->
+      <footer class="footer">
+        <div class="footer__parralax">
+          <div class="footer__parralax-trees"></div>
+          <div class="footer__parralax-moto"></div>
+          <div class="footer__parralax-secondplan"></div>
+          <div class="footer__parralax-premierplan"></div>
+          <div class="footer__parralax-voiture"></div>
+        </div>
+        <div class="container">
+          <div class="footer__columns">
+            <div class="footer__col">
+              <h3 class="footer__col-title">
+                <i data-feather="shopping-bag"></i> <span>About</span>
+              </h3>
+              <nav class="footer__nav">
+                <ul class="footer__nav-list">
+                  <li class="footer__nav-item">
+                    <a href class="/about">
+                      About Us
+                    </a>
+                  </li>
+                  <li class="footer__nav-item">
+                    <a href class="/contact">
+                      Contact Us
+                    </a>
+                  </li>
+                  <li class="footer__nav-item">
+                    <a href class="footer__nav-link">
+                      Terms & Conditions
+                    </a>
+                  </li>
+                  <li class="footer__nav-item">
+                    <a href class="footer__nav-link">
+                      Privacy Policy
+                    </a>
+                  </li>
+                  
+                </ul>
+              </nav>
+            </div>
+            <div class="footer__col">
+              <h3 class="footer__col-title">
+                <i data-feather="share-2"></i> <span>Social Media</span>
+              </h3>
+              <nav class="footer__nav">
+                <ul class="footer__nav-list">
+                  <li class="footer__nav-item">
+                    <a href class="footer__nav-link">
+                      <i data-feather="youtube"></i><span>Youtube</span>
+                    </a>
+                  </li>
+                  <li class="footer__nav-item">
+                    <a href class="footer__nav-link">
+                      <i data-feather="facebook"></i><span>Facebook</span>
+
+                    </a>
+                  </li>
+                  <li class="footer__nav-item">
+                    <a href="https://www.instagram.com/as_usual.clothing/" class="footer__nav-link">
+                      <i data-feather="https://www.instagram.com/as_usual.clothing/"></i><span>Instagram</span>
+                      
+                    </a>
+                  </li>
+                </ul>
+              </nav>
+            </div>
+            <div class="footer__col">
+              <h3 class="footer__col-title">
+                <i data-feather="send"></i> <span>Contact us</span>
+              </h3>
+              <nav class="footer__nav">
+                <ul class="footer__nav-list">
+                  <li class="footer__nav-item">
+                    <a href="mailto:contact.laboiserie@gmail.com"
+                      class="footer__nav-link">
+                      asusualclothing@gmail.com
+                    </a>
+                  </li>
+                </ul>
+              </nav>
+            </div>
+          </div>
+        </div>
+      </footer>
+    </div>
+    <!-- this the javascript and link for gsap  -->
+    <!-- Locomotive Scroll -->
+    <script
+      src="https://cdn.jsdelivr.net/npm/locomotive-scroll@3.5.4/dist/locomotive-scroll.js"></script>
+
+    <!-- GSAP Core and ScrollTrigger -->
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js    "></script>
+
+    <!-- Your Custom Script -->
+    <script src="scripts/script.js"></script>
+    <script src="scripts/slider.js"></script>
+
+  </body>
+
+</html>

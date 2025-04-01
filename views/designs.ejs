@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Designs</title>
+    <style>
+        /* General Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            background-color: #f9f9f9;
+            /* Light background */
+            color: #333;
+            /* Dark text */
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #007bff;
+            /* Accent color for heading */
+        }
+
+        ul {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            /* Space between items */
+            justify-content: center;
+            /* Center align items */
+            padding: 0;
+            list-style: none;
+            /* Remove default list styling */
+        }
+
+        li {
+            background-color: #fff;
+            /* White background for each design card */
+            border: 2px solid #ddd;
+            /* Subtle border */
+            border-radius: 8px;
+            /* Rounded corners */
+            padding: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            /* Subtle shadow */
+            width: 250px;
+            /* Fixed width for each card */
+            text-align: center;
+            /* Center align content */
+        }
+
+        h3 {
+            font-size: 1rem;
+            margin-bottom: 10px;
+            color: #555;
+            /* Slightly darker text for headings */
+        }
+
+        img {
+            width: 100%;
+            /* Make images responsive */
+            height: auto;
+            border: 2px solid #007bff;
+            /* Accent border for images */
+            border-radius: 5px;
+            /* Rounded corners for images */
+            margin-bottom: 10px;
+            /* Space below images */
+        }
+
+        p {
+            text-align: center;
+            color: #888;
+            /* Lighter text for "No designs found" */
+            font-size: 1.2rem;
+            margin-top: 20px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            ul {
+                gap: 15px;
+                /* Reduce gap on smaller screens */
+            }
+
+            li {
+                width: 200px;
+                /* Reduce card width */
+            }
+        }
+
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 1.5rem;
+                /* Smaller heading on very small screens */
+            }
+
+            li {
+                width: 100%;
+                /* Full-width cards on very small screens */
+                padding: 10px;
+            }
+
+            img {
+                width: 100%;
+                height: auto;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Saved Designs</h1>
+    <ul>
+        <% if (designs.length> 0) { %>
+            <% designs.forEach(design=> { %>
+                <li>
+                    <h3>Front Image:</h3>
+                    <img src="<%= design.frontImage %>" alt="Front Design" width="200">
+                    <h3>Back Image:</h3>
+                    <img src="<%= design.backImage %>" alt="Back Design" width="200">
+                </li>
+                <% }); %>
+                    <% } else { %>
+                        <p>No designs found.</p>
+                        <% } %>
+    </ul>
+</body>
+
+</html>

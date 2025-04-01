@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cart - Dark Theme</title>
+    <link rel="stylesheet" href="../styles/cart.css">
+    <link rel="stylesheet" href="/styles/bookingBtn.css">
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div class="cart-container">
+        <div class="cart-row">
+            <div class="cart-items-section">
+                <div class="cart-header">
+                    <h4><b>Shopping Cart</b></h4>
+                    <p>Welcome, <b><%= user ? user.name : "Guest" %></b></p>
+                </div>
+
+                <% if (cart && cart.items.length > 0) { %>
+                    <div class="cart-header">
+                        <span class="cart-items-count"><%= cart.items.length %> items</span>
+                    </div>
+
+                    <% cart.items.forEach(item => { %>
+                        <% if (item.product) { %>
+                            <div class="cart-item" data-price="<%= item.product.price %>">
+                                <img class="cart-item-image" src="<%= item.product.front_image %>" alt="<%= item.product.name %>">
+                                <div class="cart-item-details">
+                                    <p class="cart-item-category"><%= item.product.category %></p>
+                                    <p class="cart-item-name"><%= item.product.name %></p>
+                                </div>
+                                <div class="cart-item-price">
+                                    Rs <span class="item-total"><%= item.product.price %></span>
+                                    <span class="cart-remove">&#10005;</span>
+                                </div>
+                                <div class="cart-item-quantity">
+                                    <button class="decrease">-</button>
+                                    <span class="cart-quantity"><%= item.quantity %></span>
+                                    <button class="increase">+</button>
+                                </div>
+                            </div>
+                        <% } else { %>
+                            <p style="color: red;">Product not found.</p>
+                        <% } %>
+                    <% }) %>
+                <% } else { %>
+                    <div class="empty-cart-message">
+                        <p>No items in cart. Please continue shopping.</p>
+                        <a href="/" class="continue-shopping-btn">Continue Shopping</a>
+                    </div>
+                <% } %>
+
+                <div class="cart-back">
+                    <a href="/">&leftarrow; Back to shop</a>
+                </div>
+            </div>
+
+            <% if (cart && cart.items.length > 0) { %>
+                <div class="cart-summary">
+                    <h5><b>Summary</b></h5>
+                    <hr>
+                    <div class="summary-details">
+                        <p>ITEMS <span id="total-items"><%= cart.items.length %></span></p>
+                        <p>Rs <span id="total-price"><%= cart.items.reduce((total, item) => total + (item.product.price * item.quantity), 0) %></span></p>
+                    </div>
+                    <form>
+                        <p>SHIPPING</p>
+                        <select>
+                            <option>Standard Delivery - Rs5.00</option>
+                        </select>
+                        <p>GIVE CODE</p>
+                        <input id="cart-code" placeholder="Enter your code">
+                    </form>
+                    <div class="summary-total">
+                        <p>TOTAL PRICE</p>
+                        <p>Rs <span id="final-total"><%= cart.items.reduce((total, item) => total + (item.product.price * item.quantity), 5) %></span></p>
+                    </div>
+                    <div class="order_btn_animation">
+                        <button class="order">
+                            <span class="default">Complete Order</span>
+                            <span class="success">Order Placed
+                                <svg viewbox="0 0 12 10">
+                                    <polyline points="1.5 6 4.5 9 10.5 1"></polyline>
+                                </svg>
+                            </span>
+                            <div class="box"></div>
+                            <div class="truck">
+                                <div class="back"></div>
+                                <div class="front">
+                                    <div class="window"></div>
+                                </div>
+                                <div class="light top"></div>
+                                <div class="light bottom"></div>
+                            </div>
+                            <div class="lines"></div>
+                        </button>
+                    </div>
+                </div>
+            <% } %>
+        </div>
+    </div>
+
+    <!-- Invisible Sliding Bar -->
+    <div id="sliding-bar">
+        <!-- Add any content here if needed -->
+    </div>
+
+    <script src="../scripts/cart.js"></script>
+</body>
+
+</html>

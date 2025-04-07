@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,8 +7,17 @@
     <link rel="stylesheet" href="../styles/cart.css">
     <link rel="stylesheet" href="/styles/bookingBtn.css">
     <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@700&display=swap" rel="stylesheet">
+    <style>
+        .coupon-error { color: #ff4444; margin-top: 5px; font-size: 0.9em; }
+        .coupon-success { color: #4CAF50; margin-top: 5px; font-size: 0.9em; }
+        .discount-message { color: #4CAF50; font-size: 0.9em; margin-top: 5px; }
+        .coupon-input-group { display: flex; margin-bottom: 10px; }
+        #cart-code { flex: 1; padding: 8px; border: 1px solid #444; background: #222; color: #fff; border-radius: 4px 0 0 4px; }
+        .apply-coupon-btn, .remove-coupon-btn { padding: 8px 12px; border: none; cursor: pointer; }
+        .apply-coupon-btn { background: #4CAF50; color: white; border-radius: 0 4px 4px 0; }
+        .remove-coupon-btn { background: #f44336; color: white; border-radius: 0 4px 4px 0; }
+    </style>
 </head>
-
 <body>
     <div class="cart-container">
         <div class="cart-row">
@@ -19,7 +27,7 @@
                     <p>Welcome, <b><%= user ? user.name : "Guest" %></b></p>
                 </div>
 
-                <% if (cart && cart.items.length > 0) { %>
+                <% if (cart && cart.items && cart.items.length > 0) { %>
                     <div class="cart-header">
                         <span class="cart-items-count"><%= cart.items.length %> items</span>
                     </div>
@@ -31,6 +39,7 @@
                                 <div class="cart-item-details">
                                     <p class="cart-item-category"><%= item.product.category %></p>
                                     <p class="cart-item-name"><%= item.product.name %></p>
+                                    <p class="cart-item-size">Size: <%= item.size %></p>
                                 </div>
                                 <div class="cart-item-price">
                                     Rs <span class="item-total"><%= item.product.price %></span>
@@ -58,26 +67,80 @@
                 </div>
             </div>
 
-            <% if (cart && cart.items.length > 0) { %>
+            
+            <% if (cart && cart.items && cart.items.length > 0) { %>
+                <%
+                    // Calculate prices
+                    const subtotal = cart.items.reduce((total, item) => total + (item.product.price * item.quantity), 0);
+                    const shipping = 5.00;
+                    
+                    // Calculate discount based on coupon
+                    let discountAmount = 0;
+                    if (cart.appliedCoupon) {
+                        if (cart.appliedCoupon.discountType === 'percentage') {
+                            discountAmount = subtotal * (cart.appliedCoupon.discountValue / 100);
+                        } else {
+                            discountAmount = cart.appliedCoupon.discountValue;
+                        }
+                        // Ensure discount doesn't make total negative
+                        discountAmount = Math.min(discountAmount, subtotal);
+                    }
+                    
+                    // Calculate final total (discount applied before shipping)
+                    const discountedSubtotal = subtotal - discountAmount;
+                    let finalTotal = Math.max(0, discountedSubtotal + shipping);
+                %>
+                
                 <div class="cart-summary">
                     <h5><b>Summary</b></h5>
                     <hr>
                     <div class="summary-details">
                         <p>ITEMS <span id="total-items"><%= cart.items.length %></span></p>
-                        <p>Rs <span id="total-price"><%= cart.items.reduce((total, item) => total + (item.product.price * item.quantity), 0) %></span></p>
+                        <p>Rs <span id="total-price"><%= subtotal.toFixed(2) %></span></p>
                     </div>
-                    <form>
+                    
+                    <form id="coupon-form" action="/cart/apply-coupon" method="POST">
                         <p>SHIPPING</p>
                         <select>
-                            <option>Standard Delivery - Rs5.00</option>
+                            <option>Standard Delivery - Rs<%= shipping.toFixed(2) %></option>
                         </select>
-                        <p>GIVE CODE</p>
-                        <input id="cart-code" placeholder="Enter your code">
+                        
+                        <p>DISCOUNT CODE</p>
+                        <div class="coupon-input-group">
+                            <input id="cart-code" name="couponCode" placeholder="Enter your code" 
+                                   value="<%= cart.appliedCoupon ? cart.appliedCoupon.code : '' %>">
+                            <% if (!cart.appliedCoupon) { %>
+                                <button type="submit" class="apply-coupon-btn">Apply</button>
+                            <% } else { %>
+                                <a href="/cart/remove-coupon" class="remove-coupon-btn">Remove</a>
+                            <% } %>
+                        </div>
+                        
+                        <% if (cart.appliedCoupon) { %>
+                            <p class="coupon-success">
+                                Coupon: <b><%= cart.appliedCoupon.code %></b> - 
+                                <%= cart.appliedCoupon.discountType === 'percentage' 
+                                    ? `${cart.appliedCoupon.discountValue}% off` 
+                                    : `Rs${cart.appliedCoupon.discountValue} off` %>
+                            </p>
+                        <% } %>
                     </form>
+                    
                     <div class="summary-total">
-                        <p>TOTAL PRICE</p>
-                        <p>Rs <span id="final-total"><%= cart.items.reduce((total, item) => total + (item.product.price * item.quantity), 5) %></span></p>
+                        <div class="price-breakdown">
+                            
+                            
+                            <div class="price-line total-line">
+                                <span>TOTAL PRICE:</span>
+                                <span>Rs <%= finalTotal.toFixed(2) %></span>
+                            </div>
+                        </div>
+                        
+                        <% if (discountAmount > 0) { %>
+                            <p class="discount-message">You saved: Rs <%= discountAmount.toFixed(2) %></p>
+                        <% } %>
                     </div>
+                    
                     <div class="order_btn_animation">
                         <button class="order">
                             <span class="default">Complete Order</span>
@@ -102,13 +165,6 @@
             <% } %>
         </div>
     </div>
-
-    <!-- Invisible Sliding Bar -->
-    <div id="sliding-bar">
-        <!-- Add any content here if needed -->
-    </div>
-
     <script src="../scripts/cart.js"></script>
 </body>
-
 </html>

@@ -11,6 +11,7 @@
 </head>
 
 <body>
+    
     <div class="container">
         <!-- Left Section: Scrollable Image Gallery -->
         <div class="image-gallery">
@@ -45,32 +46,44 @@
                             <th>Chest</th>
                             <th>Shoulder</th>
                             <th>Length</th>
+                            <th>Sleeve length</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
                             <td>S</td>
-                            <td>44"</td>
-                            <td>21"</td>
-                            <td>29"</td>
+                            <td>38"</td>
+                            <td>17.5"</td>
+                            <td>27"</td>
+                            <td>8"</td>
                         </tr>
                         <tr>
                             <td>M</td>
-                            <td>46"</td>
-                            <td>22"</td>
-                            <td>29.5"</td>
+                            <td>40"</td>
+                            <td>18.5"</td>
+                            <td>28"</td>
+                            <td>8.5</td>
                         </tr>
                         <tr>
                             <td>L</td>
-                            <td>48"</td>
-                            <td>23"</td>
-                            <td>30"</td>
+                            <td>42"</td>
+                            <td>19"</td>
+                            <td>29"</td>
+                            <td>9</td>
                         </tr>
                         <tr>
                             <td>XL</td>
-                            <td>50"</td>
-                            <td>24"</td>
-                            <td>30.5"</td>
+                            <td>44"</td>
+                            <td>20"</td>
+                            <td>30"</td>
+                            <td>10</td>
+                        </tr>
+                        <tr>
+                            <td>XXL</td>
+                            <td>46</td>
+                            <td>21</td>
+                            <td>31</td>
+                            <td>10.5</td>
                         </tr>
                     </tbody>
                 </table>
@@ -126,65 +139,97 @@
     </div>
 
     <script>
-        // Function to handle size selection
-        function selectSize(size) {
-            const selectedSizeInput = document.getElementById("selected-size");
-            selectedSizeInput.value = size;
-
-            // Highlight the selected size button
-            document.querySelectorAll(".size-button").forEach(button => {
-                button.classList.remove("selected");
+        // Size Selection Handling
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize size selection
+            let selectedSize = '';
+            const sizeButtons = document.querySelectorAll('.size-button');
+            const sizeInput = document.getElementById('selected-size');
+            
+            // Add click event to all size buttons
+            sizeButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    // Remove selected class from all buttons
+                    sizeButtons.forEach(btn => btn.classList.remove('selected'));
+                    
+                    // Add selected class to clicked button
+                    this.classList.add('selected');
+                    
+                    // Update the selected size value
+                    selectedSize = this.getAttribute('data-size');
+                    sizeInput.value = selectedSize;
+                });
             });
-            document.querySelector(`.size-button[data-size="${size}"]`).classList.add("selected");
-        }
-
-        // Add event listeners to size buttons
-        document.querySelectorAll(".size-button").forEach(button => {
-            button.addEventListener("click", () => {
-                const size = button.getAttribute("data-size");
-                selectSize(size);
+            
+            // Form Submission Handling
+            const form = document.querySelector('form');
+            form.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                // Validate size selection
+                if (!selectedSize) {
+                    alert('Please select a size before adding to cart');
+                    return;
+                }
+                
+                // Validate quantity
+                const quantity = parseInt(document.getElementById('quantity').value);
+                if (isNaN(quantity) || quantity < 1) {
+                    alert('Please enter a valid quantity');
+                    return;
+                }
+                
+                try {
+                    const formData = new FormData(form);
+                    const response = await fetch('/add-to-cart', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        window.location.href = '/cart';
+                    } else if (result.redirect) {
+                        alert(result.message);
+                        window.location.href = result.redirect;
+                    } else {
+                        alert(result.message || 'Failed to add to cart');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('An error occurred while adding to cart');
+                }
             });
         });
-
-        // Function to change quantity
+        
+        // Quantity Controls
         function changeQuantity(change) {
-            const quantityInput = document.getElementById("quantity");
-            let currentQuantity = parseInt(quantityInput.value);
-            currentQuantity = Math.max(1, currentQuantity + change);
+            const quantityInput = document.getElementById('quantity');
+            let currentQuantity = parseInt(quantityInput.value) || 1;
+            currentQuantity += change;
+            
+            // Ensure quantity doesn't go below 1
+            if (currentQuantity < 1) currentQuantity = 1;
+            
             quantityInput.value = currentQuantity;
         }
-
-        // Function to validate form submission
-document.querySelector("form").addEventListener("submit", function(event) {
-    const selectedSize = document.getElementById("selected-size").value;
-    const quantity = parseInt(document.getElementById("quantity").value);
-
-    if (!selectedSize) {
-        event.preventDefault();
-        alert("Please select a size before adding to cart.");
-        return;
-    }
-
-    if (isNaN(quantity) || quantity < 1) {
-        event.preventDefault();
-        alert("Please select a valid quantity.");
-    }
-});
-
-        // Function to toggle product images
+        
+        // Image Gallery
         function toggleImage(index) {
-            const displayImage = document.querySelector(".display_image img");
-            displayImage.src = document.querySelectorAll(".change_image img")[index].src;
+            const displayImage = document.querySelector('.display_image img');
+            const thumbnails = document.querySelectorAll('.change_image img');
+            if (thumbnails[index]) {
+                displayImage.src = thumbnails[index].src;
+            }
         }
-
-        // Initially, show the first image
+        
+        // Initialize first image
         toggleImage(0);
-
-        // Add event listeners to change image when clicked
-        document.querySelectorAll(".change_image img").forEach((img, index) => {
-            img.addEventListener("click", () => {
-                toggleImage(index);
-            });
+        
+        // Add click events to thumbnails
+        document.querySelectorAll('.change_image img').forEach((img, index) => {
+            img.addEventListener('click', () => toggleImage(index));
         });
     </script>
 </body>

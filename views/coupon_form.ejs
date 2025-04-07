@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title><%= coupon ? "Edit Coupon" : "Add Coupon" %></title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</head>
+<body>
+  <div class="container mt-5">
+
+    <!-- Coupon Management Header -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h2>Coupon Management</h2>
+      <a href="/coupons" class="btn btn-primary">Refresh List</a>
+    </div>
+
+    <!-- Existing Coupons Section -->
+    <% if (coupons && coupons.length > 0) { %>
+      <div class="table-responsive mb-5">
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th>Code</th>
+              <th>Discount</th>
+              <th>Expiry Date</th>
+              <th>Status</th>
+              <th>Created</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% coupons.forEach(function(c) { %>
+              <tr>
+                <td><strong><%= c.code %></strong></td>
+                <td>
+                  <%= c.discountType === 'percentage' ? 
+                      c.discountValue + '%' : 
+                      '₹' + c.discountValue %>
+                </td>
+                <td><%= c.expiryDate.toISOString().substring(0, 10) %></td>
+                <td>
+                  <span class="badge <%= c.active ? 'bg-success' : 'bg-secondary' %>">
+                    <%= c.active ? 'Active' : 'Inactive' %>
+                  </span>
+                </td>
+                <td><%= c.createdAt.toISOString().substring(0, 10) %></td>
+                <td>
+                  <div class="d-flex gap-2">
+                    <a href="/edit/<%= c._id %>" class="btn btn-sm btn-info">Edit</a>
+                    <form action="/toggle-active/<%= c._id %>" method="POST" style="display: inline;">
+                      <button type="submit" class="btn btn-sm <%= c.active ? 'btn-warning' : 'btn-success' %>">
+                        <%= c.active ? 'Deactivate' : 'Activate' %>
+                      </button>
+                    </form>
+                    <form action="/delete/<%= c._id %>" method="POST" style="display: inline;">
+                      <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this coupon?')">
+                        Delete
+                      </button>
+                    </form>
+                  </div>
+                </td>
+              </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      </div>
+    <% } else { %>
+      <div class="alert alert-info">No coupons found. You can create one below.</div>
+    <% } %>
+
+    <!-- Add/Edit Coupon Form -->
+    <div class="card">
+      <div class="card-header">
+        <h4><%= coupon ? "Edit Coupon" : "Add New Coupon" %></h4>
+      </div>
+      <div class="card-body">
+        <form action="<%= coupon ? '/update/' + coupon._id : '/create' %>" method="POST">
+          <div class="mb-3">
+            <label for="code" class="form-label">Coupon Code</label>
+            <input type="text" class="form-control" id="code" name="code" required 
+                   value="<%= coupon?.code || '' %>">
+          </div>
+
+          <div class="mb-3">
+            <label for="discountType" class="form-label">Discount Type</label>
+            <select class="form-select" id="discountType" name="discountType" required>
+              <option value="percentage" <%= coupon?.discountType === 'percentage' ? 'selected' : '' %>>Percentage</option>
+              <option value="flat" <%= coupon?.discountType === 'flat' ? 'selected' : '' %>>Flat (₹)</option>
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label for="discountValue" class="form-label">Discount Value</label>
+            <input type="number" class="form-control" id="discountValue" name="discountValue" 
+                   required min="1" value="<%= coupon?.discountValue || '' %>">
+          </div>
+
+          <div class="mb-3">
+            <label for="expiryDate" class="form-label">Expiry Date</label>
+            <input type="date" class="form-control" id="expiryDate" name="expiryDate" required 
+                   value="<%= coupon ? coupon.expiryDate.toISOString().substring(0, 10) : '' %>">
+          </div>
+
+          <div class="form-check mb-3">
+            <input class="form-check-input" type="checkbox" id="active" name="active" 
+                   <%= coupon?.active ? 'checked' : '' %>>
+            <label class="form-check-label" for="active">Active</label>
+          </div>
+
+          <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-primary">
+              <%= coupon ? "Update Coupon" : "Create Coupon" %>
+            </button>
+            <% if (coupon) { %>
+              <a href="/add-coupon" class="btn btn-secondary">Cancel</a>
+            <% } %>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

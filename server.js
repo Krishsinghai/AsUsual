@@ -87,6 +87,8 @@ const Cart = require('./models/CartSchema');
 const Admin = require('./models/AdminSchema');
 const CustomTshirt = require('./models/CustomTshirtSchema');
 const Poster = require('./models/posterSchema');
+const Coupon = require('./models/CouponSchema '); // Adjust path if needed
+
 
 // Configure Multer for handling file uploads in memory
 
@@ -307,29 +309,7 @@ app.get('')
 app.get('/add-product', (req, res) => {
     res.render('add_product');
 });
-app.get("/cart", async (req, res) => {
-    try {
-        // Get user ID from session or cookie
-        const userId = req.session.userId || req.cookies.userId;
-        let user = { name: "Guest" };
 
-        if (userId) {
-            user = await User.findById(userId, "name");
-        }
-
-        // Fetch the user's cart
-        const cart = await Cart.findOne({ user: userId }).populate("items.product");
-
-        if (!cart) {
-            return res.render("cart", { cart: null, user }); // Handle empty cart
-        }
-
-        res.render("cart", { cart, user });
-    } catch (error) {
-        console.error("Error fetching cart:", error);
-        res.status(500).send("Internal Server Error");
-    }
-});
 
 
 
@@ -341,7 +321,10 @@ app.post('/add-to-cart', async (req, res) => {
     const userId = req.session.userId || req.cookies.userId;
 
     if (!userId) {
-        return res.status(401).json({ message: 'Please log in to add items to your cart' });
+        return res.json({ 
+            message: 'Please log in to add items to your cart',
+            redirect: '/signup  '
+        });
     }
 
     try {
@@ -369,16 +352,20 @@ app.post('/add-to-cart', async (req, res) => {
                 user: userId,
                 items: [{ product: productId, quantity: parseInt(quantity, 10), size }]
             });
-
+            
             await newCart.save();
-            res.redirect('/cart')
         }
+        
+        // Return success response
+        res.json({ success: true });
     } catch (error) {
         console.error('Error adding to cart:', error);
-        res.status(500).json({ message: 'Internal server error', error });
+        res.json({ 
+            message: 'Failed to add item to cart. Please try again.',
+            error: error.message 
+        });
     }
 });
-
 
 
 app.get('/product_details/:id', async (req, res) => {
@@ -400,6 +387,7 @@ app.get('/product_details/:id', async (req, res) => {
 
         // Pass both product and user to the EJS template
         res.render('product_detail', { product, user });
+        
     } catch (error) {
         console.error(error);
         res.status(500).send('Server error');
@@ -482,8 +470,138 @@ app.get('/product_details/:id', (req, res) => {
 });
 
 
+// GET: Main coupons page with list and form
+app.get('/coupons', async (req, res) => {
+    try {
+      const coupons = await Coupon.find().sort({ createdAt: -1 });
+      res.render('coupon_form', { 
+        coupons, 
+        coupon: null 
+      });
+    } catch (err) {
+      console.error('Error fetching coupons:', err);
+      res.redirect('/coupons');
+    }
+  });
+  
+  // GET: Form to add new coupon
+  app.get('/add-coupon', (req, res) => {
+    res.render('coupon_form', {
+      coupons: [],
+      coupon: null
+    });
+  });
+  
+  // GET: Form to edit existing coupon
+  app.get('/edit/:id', async (req, res) => {
+    try {
+      const [coupons, coupon] = await Promise.all([
+        Coupon.find().sort({ createdAt: -1 }),
+        Coupon.findById(req.params.id)
+      ]);
+  
+      if (!coupon) return res.redirect('/coupons');
+  
+      res.render('coupon_form', { 
+        coupons, 
+        coupon 
+      });
+    } catch (err) {
+      console.error('Error in edit route:', err);
+      res.redirect('/coupons');
+    }
+  });
+  
+  // POST: Toggle coupon active status
+  app.post('/toggle-active/:id', async (req, res) => {
+    try {
+      const coupon = await Coupon.findById(req.params.id);
+      if (!coupon) return res.redirect('/coupons');
+  
+      coupon.active = !coupon.active;
+      await coupon.save();
+  
+      res.redirect('/coupons');
+    } catch (err) {
+      console.error('Error toggling coupon status:', err);
+      res.redirect('/coupons');
+    }
+  });
+  
+  // POST: Delete coupon
+  app.post('/delete/:id', async (req, res) => {
+    try {
+      await Coupon.findByIdAndDelete(req.params.id);
+      res.redirect('/coupons');
+    } catch (err) {
+      console.error('Error deleting coupon:', err);
+      res.redirect('/coupons');
+    }
+  });
+  
+  // POST: Create new coupon
+  app.post('/create', async (req, res) => {
+    try {
+      const { code, discountType, discountValue, expiryDate, active } = req.body;
+  
+      if (!code || !discountType || !discountValue || !expiryDate) {
+        return res.redirect('/coupons');
+      }
+  
+      const existingCoupon = await Coupon.findOne({ code });
+      if (existingCoupon) {
+        return res.redirect('/coupons');
+      }
+  
+      const coupon = new Coupon({
+        code,
+        discountType,
+        discountValue: Number(discountValue),
+        expiryDate: new Date(expiryDate),
+        active: active === 'on'
+      });
+  
+      await coupon.save();
+      res.redirect('/coupons');
+    } catch (err) {
+      console.error('Error creating coupon:', err);
+      res.redirect('/coupons');
+    }
+  });
+  
+  // POST: Update existing coupon
+  app.post('/update/:id', async (req, res) => {
+    try {
+      const { code, discountType, discountValue, expiryDate, active } = req.body;
+      const couponId = req.params.id;
+  
+      if (!code || !discountType || !discountValue || !expiryDate) {
+        return res.redirect(`/edit/${couponId}`);
+      }
+  
+      const existingCoupon = await Coupon.findOne({ code, _id: { $ne: couponId } });
+      if (existingCoupon) {
+        return res.redirect(`/edit/${couponId}`);
+      }
+  
+      await Coupon.findByIdAndUpdate(couponId, {
+        code,
+        discountType,
+        discountValue: Number(discountValue),
+        expiryDate: new Date(expiryDate),
+        active: active === 'on'
+      }, { new: true });
+  
+      res.redirect('/coupons');
+    } catch (err) {
+      console.error('Error updating coupon:', err);
+      res.redirect(`/edit/${req.params.id}`);
+    }
+  });
+  
+  /////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// fetch cart product
+  // fetch cart product
 app.get('/cart:id', async (req, res) => {
     try {
         const cart = await Cart.find().populate('items.product'); // Fetch cart with product details
@@ -628,34 +746,48 @@ app.post('/user/signup', async (req, res) => {
 // Login Route
 app.post('/user/login', async (req, res) => {
     try {
-        const { email, password, otp } = req.body;
+        const { email, password } = req.body;
+        
+        // Validate input
+        if (!email || !password) {
+            req.session.loginError = 'Please provide both email and password';
+            return res.redirect('/login');
+        }
+
         const user = await User.findOne({ email });
 
-        if (!user || !(await bcrypt.compare(password, user.password))) {
-            return res.status(401).json({ message: 'Invalid email or password' });
+        if (!user) {
+            req.session.loginError = 'Invalid email or password';
+            return res.redirect('/login');
         }
 
-        // Verify OTP
-        if (otpCache[email] !== otp) {
-            return res.status(400).send("Invalid OTP");
+        const isPasswordValid = await bcrypt.compare(password, user.password);
+        if (!isPasswordValid) {
+            req.session.loginError = 'Invalid email or password';
+            return res.redirect('/login');
         }
 
-        const SECRET_KEY = 'Preaveen@8233';
+        // Create JWT token
+        const SECRET_KEY = process.env.JWT_SECRET || 'Preaveen@8233';
         const token = jwt.sign({ userId: user._id }, SECRET_KEY, { expiresIn: '1h' });
 
-        // Set session with user ID
+        // Set session and cookies
         req.session.userId = user._id.toString();
+        res.cookie('token', token, { 
+            httpOnly: true, 
+            maxAge: 3600000, // 1 hour
+            secure: process.env.NODE_ENV === 'production'
+        });
 
-        // Set cookie with user ID
-        res.cookie('userId', user._id.toString(), { httpOnly: true, maxAge: 3600000 }); // 1 hour
+        // Successful login redirect
+        return res.redirect('/');
 
-        res.redirect('/');
     } catch (error) {
         console.error('Error logging in user:', error);
-        res.status(500).json({ message: 'Error logging in user' });
+        req.session.loginError = 'Error logging in. Please try again.';
+        res.redirect('/login');
     }
 });
-
 
 // Handle logout
 // Handle logout
@@ -672,11 +804,206 @@ app.get('/logout', (req, res) => {
 
 
 
-// Custom tshirt routes
-app.get('/CustomTshirt', (req, res) => {
-    res.render('CustomTshirt')
-})
 
+//apply coupon
+// In your routes/cart.js
+// Enhanced Coupon Application Route
+// Apply Coupon Route - Now using redirects
+app.post('/cart/apply-coupon', async (req, res) => {
+    try {
+        const { couponCode } = req.body;
+        
+        // Validate input
+        if (!couponCode || typeof couponCode !== 'string' || couponCode.trim() === '') {
+            req.session.couponMessage = 'Please enter a valid coupon code';
+            return res.redirect('/cart');
+        }
+
+        // Get user ID
+        const userId = req.user?._id || req.session.userId;
+        if (!userId) {
+            req.session.couponMessage = 'Please login to apply coupons';
+            return res.redirect('/login'); // Redirect to login page
+        }
+
+        // Find coupon (case insensitive search)
+        const coupon = await Coupon.findOne({ 
+            code: { $regex: new RegExp(`^${couponCode.trim()}$`, 'i') },
+            active: true,
+            expiryDate: { $gte: new Date() }
+        });
+
+        if (!coupon) {
+            // More specific error messages
+            const expiredCoupon = await Coupon.findOne({ 
+                code: { $regex: new RegExp(`^${couponCode.trim()}$`, 'i') },
+                expiryDate: { $lt: new Date() }
+            });
+
+            if (expiredCoupon) {
+                req.session.couponMessage = 'This coupon has expired';
+                return res.redirect('/cart');
+            }
+
+            const inactiveCoupon = await Coupon.findOne({ 
+                code: { $regex: new RegExp(`^${couponCode.trim()}$`, 'i') },
+                active: false
+            });
+
+            if (inactiveCoupon) {
+                req.session.couponMessage = 'This coupon is no longer active';
+                return res.redirect('/cart');
+            }
+
+            req.session.couponMessage = 'Invalid coupon code';
+            return res.redirect('/cart');
+        }
+
+        // Get user's cart
+        const cart = await Cart.findOne({ user: userId })
+            .populate('items.product')
+            .populate('appliedCoupon');
+
+        if (!cart || cart.items.length === 0) {
+            req.session.couponMessage = 'Your cart is empty';
+            return res.redirect('/cart');
+        }
+
+        // Check if coupon is already applied
+        if (cart.appliedCoupon && cart.appliedCoupon._id.equals(coupon._id)) {
+            req.session.couponMessage = 'This coupon is already applied';
+            return res.redirect('/cart');
+        }
+
+        // Calculate discount
+        const subtotal = cart.items.reduce((total, item) => 
+            total + (item.product.price * item.quantity), 0);
+        
+        let discountAmount = 0;
+        if (coupon.discountType === 'percentage') {
+            discountAmount = subtotal * (coupon.discountValue / 100);
+            discountAmount = Math.min(discountAmount, subtotal);
+        } else {
+            discountAmount = Math.min(coupon.discountValue, subtotal);
+        }
+
+        // Update cart
+        cart.appliedCoupon = coupon._id;
+        cart.discountAmount = discountAmount;
+        await cart.save();
+
+        req.session.couponMessage = `Coupon "${coupon.code}" applied successfully!`;
+        res.redirect('/cart');
+
+    } catch (error) {
+        console.error('Coupon application error:', error);
+        req.session.couponMessage = 'Failed to apply coupon';
+        res.redirect('/cart');
+    }
+});
+
+// Remove Coupon Route - Now using redirects
+// Change from POST to GET
+app.get('/cart/remove-coupon', async (req, res) => {
+    try {
+        const userId = req.user?._id || req.session.userId;
+        if (!userId) {
+            req.session.couponMessage = 'Not authorized';
+            return res.redirect('/login');
+        }
+
+        const cart = await Cart.findOne({ user: userId });
+        if (!cart) {
+            req.session.couponMessage = 'Cart not found';
+            return res.redirect('/cart');
+        }
+
+        if (!cart.appliedCoupon) {
+            req.session.couponMessage = 'No coupon applied to remove';
+            return res.redirect('/cart');
+        }
+
+        // Remove coupon from cart
+        cart.appliedCoupon = undefined;
+        cart.discountAmount = 0;
+        await cart.save();
+
+        req.session.couponMessage = 'Coupon removed successfully';
+        res.redirect('/cart');
+
+    } catch (error) {
+        console.error('Error removing coupon:', error);
+        req.session.couponMessage = 'Failed to remove coupon';
+        res.redirect('/cart');
+    }
+});
+// Cart Route - Updated to use session messages
+app.get('/cart', async (req, res) => {
+    try {
+        let user = { name: "Guest" };
+        let userId = null;
+        
+        // Authentication check
+        if (req.user) {
+            user = req.user;
+            userId = req.user._id;
+        } else {
+            userId = req.session.userId;
+            if (userId) {
+                user = await User.findById(userId, "name");
+            }
+        }
+
+        // Get cart with populated data
+        let cart = await Cart.findOne({ user: userId })
+            .populate('items.product')
+            .populate('appliedCoupon');
+
+        let discountAmount = 0;
+        const couponMessage = req.session.couponMessage;
+        delete req.session.couponMessage; // Clear the message after displaying
+
+        // Validate cart and coupon
+        if (cart) {
+            if (!cart.items) cart.items = [];
+            
+            // Check applied coupon validity
+            if (cart.appliedCoupon) {
+                const now = new Date();
+                if (!cart.appliedCoupon.active || cart.appliedCoupon.expiryDate < now) {
+                    // Coupon is no longer valid
+                    req.session.couponMessage = 'The applied coupon is no longer valid';
+                    cart.appliedCoupon = undefined;
+                    cart.discountAmount = 0;
+                    await cart.save();
+                } else {
+                    discountAmount = cart.discountAmount || 0;
+                }
+            }
+        } else {
+            cart = { items: [] };
+        }
+
+        res.render('cart', {
+            user,
+            cart,
+            discountAmount,
+            message: couponMessage,
+            error: null
+        });
+
+    } catch (error) {
+        console.error('Error loading cart:', error);
+        res.status(500).render('cart', {
+            user: { name: "Guest" },
+            cart: { items: [] },
+            error: 'Failed to load cart'
+        });
+    }
+});
+
+
+// Custom tshirt routes
 
 
 app.post('/api/save-design', async (req, res) => {
@@ -723,6 +1050,52 @@ app.get('/about', (req, res) => {
 
 
 // Start the server on the specified port
-app.listen(PORT, () => {
+// ... [all your existing middleware and routes] ...
+
+// Create HTTP server
+const server = app.listen(PORT, '0.0.0.0', () => {
     console.log(`Server is running on http://localhost:${PORT}`);
 });
+
+// Connection timeout handler
+// Enhanced connection timeout handler
+server.on('connection', (socket) => {
+    const clientId = `${socket.remoteAddress}:${socket.remotePort}`;
+    console.log(`New connection from ${clientId}`);
+
+    // Set timeout to 30 seconds (30000ms)
+    socket.setTimeout(30000);
+
+    socket.on('timeout', () => {
+        console.log(`[TIMEOUT] Closing idle connection ${clientId}`);
+        socket.destroy();
+    });
+
+    socket.on('close', (hadError) => {
+        console.log(`[CLOSE] Connection ${clientId} closed`, 
+                   hadError ? 'with error' : 'cleanly');
+    });
+
+    socket.on('error', (err) => {
+        console.error(`[ERROR] ${clientId}:`, err.message);
+    });
+});
+// Handle process termination
+process.on('SIGTERM', shutdown);
+process.on('SIGINT', shutdown);
+
+function shutdown() {
+    console.log('Shutting down gracefully...');
+    server.close(() => {
+        mongoose.connection.close(false, () => {
+            console.log('All connections closed');
+            process.exit(0);
+        });
+    });
+    
+    // Force shutdown after 5 seconds
+    setTimeout(() => {
+        console.error('Forcing shutdown after timeout');
+        process.exit(1);
+    }, 5000);
+}

@@ -90,6 +90,7 @@ const Admin = require('./models/AdminSchema');
 const CustomTshirt = require('./models/CustomTshirtSchema');
 const Poster = require('./models/posterSchema');
 const Order = require('./models/OrderSchema');
+const Contact= require('./models/Contact')
 const Coupon = require('./models/CouponSchema '); // Adjust path if needed
 
 
@@ -115,6 +116,14 @@ app.get('/edit-poster', (req,res)=>{
 
 app.get('/admin-option', (req, res) => {
     res.render("admin_option");
+})
+
+app.get('/Terms-and-conditions', (req,res)=>{
+    res.render("termsandcondition")
+})
+
+app.get('/Privacy-policy', (req,res)=>{
+    res.render("privacypolicy")
 })
 
 
@@ -1229,6 +1238,35 @@ app.get('/orders/:id', async (req, res) => {
     } catch (error) {
         console.error('Error fetching order details:', error);
         res.status(500).render('error', { message: 'Server error fetching order details' });
+    }
+});
+
+
+app.post('/contact', async (req, res) => {
+    try {
+        const { name, email, message } = req.body;
+
+        // Basic validation
+        if (!name || !email || !message) {
+            return res.status(400).send('All fields are required.');
+        }
+
+        // Save to DB
+        const contact = new Contact({ name, email, message });
+        await contact.save();
+    } catch (error) {
+        console.error('Error saving contact info:', error);
+        res.status(500).send('An error occurred while submitting your message.');
+    }
+});
+
+app.get('/admin/contacts', async (req, res) => {
+    try {
+        const contacts = await Contact.find().sort({ submittedAt: -1 });
+        res.render('contact_request', { contacts });
+    } catch (err) {
+        console.error('Error fetching contacts:', err);
+        res.status(500).send('Internal Server Error');
     }
 });
 

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Your Orders</title>
+    <link rel="stylesheet" href="/styles/orderlist.css">
+</head>
+<body>
+    <div class="order-list">
+        <h2>Your Orders</h2>
+        <% if (orders.length === 0) { %>
+            <div class="no-orders">
+                <p>You haven't placed any orders yet.</p>
+                <a href="/products" class="btn">Shop Now</a>
+            </div>
+        <% } else { %>
+            <div class="orders-container">
+                <% orders.forEach(order => { %>
+                    <div class="order-card">
+                        <div class="order-header">
+                            <div>
+                                <h3>Order #<%= order._id.toString().substring(0, 8) %></h3>
+                                <p>Placed on <%= new Date(order.createdAt).toLocaleDateString() %></p>
+                            </div>
+                            <div class="order-status">
+                                <span class="status-badge <%= order.status.toLowerCase() %>"><%= order.status %></span>
+                                <p>₹<%= order.totalAmount.toFixed(2) %></p>
+                            </div>
+                        </div>
+
+                        <div class="order-items">
+                            <% order.items.slice(0, 3).forEach(item => { %>
+                                <div class="order-item">
+                                    <img src="<%= item.product.images[0] %>" alt="<%= item.product.name %>" class="item-image" />
+                                    <div class="item-details">
+                                        <h4><%= item.product.name %></h4>
+                                        <p>Size: <%= item.size %></p>
+                                        <p>Qty: <%= item.quantity %></p>
+                                        <p>₹<%= (item.priceAtPurchase * item.quantity).toFixed(2) %></p>
+                                    </div>
+                                </div>
+                            <% }) %>
+                            <% if (order.items.length > 3) { %>
+                                <p class="more-items">+<%= order.items.length - 3 %> more items</p>
+                            <% } %>
+                            <div class="order-footer">
+                                <a href="/orders/<%= order._id %>" class="btn view-details">View Order Details</a>
+                            </div>
+                        </div>
+                    </div>
+                <% }) %>
+            </div>
+        <% } %>
+    </div>
+</body>
+</html>

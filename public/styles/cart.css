@@ -172,6 +172,141 @@ select, #cart-code {
   left: 0;
 }
 
+/* Order Controls */
+.order-controls {
+  margin: 20px 0;
+}
+
+.proceed-btn {
+  background: #4CAF50;
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  width: 100%;
+  transition: all 0.3s ease;
+}
+
+.proceed-btn:hover {
+  background: #45a049;
+}
+
+.shipping-form-container {
+  background: #1e1e1e;
+  padding: 20px;
+  border-radius: 8px;
+  margin-top: 15px;
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.form-row {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+.form-group {
+  flex: 1;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+  color: #ddd;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #444;
+  background: #222;
+  color: #fff;
+  border-radius: 4px;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.cancel-btn {
+  background: #f44336;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.submit-order-btn {
+  background: #4CAF50;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+/* Confirmation Page Styles */
+.confirmation-container {
+  max-width: 800px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background: #1e1e1e;
+  border-radius: 8px;
+  color: #fff;
+}
+
+.confirmation-details {
+  margin-top: 1.5rem;
+}
+
+.status-pending {
+  color: #FFA500;
+}
+
+.status-processing {
+  color: #1E90FF;
+}
+
+.status-shipped {
+  color: #32CD32;
+}
+
+.view-order-btn, .continue-shopping-btn {
+  display: inline-block;
+  margin-top: 1rem;
+  padding: 0.8rem 1.5rem;
+  border-radius: 4px;
+  text-decoration: none;
+  font-weight: bold;
+  transition: all 0.3s ease;
+}
+
+.view-order-btn {
+  background: #4CAF50;
+  color: white;
+  margin-right: 1rem;
+}
+
+.continue-shopping-btn {
+  background: #333;
+  color: white;
+}
+
+.view-order-btn:hover, .continue-shopping-btn:hover {
+  opacity: 0.9;
+}
+
 /* Responsive Design */
 @media(max-width: 1024px) {
   .cart-container {

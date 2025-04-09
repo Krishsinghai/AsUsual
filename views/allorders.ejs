@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Your Orders</title>
+    <link rel="stylesheet" href="/styles/orders.css">
+</head>
+<body>
+    <header>
+        <h2>Your Orders</h2>
+    </header>
+
+    <main class="orders-section">
+        <% if (orders.length === 0) { %>
+            <p>You have no orders yet.</p>
+        <% } else { %>
+            <% orders.forEach(order => { %>
+                <div class="order-card">
+                    <h3>Order #: <%= order._id %></h3>
+                    <p>Status: <%= order.status %></p>
+                    <p>Order Date: <%= new Date(order.createdAt).toLocaleString() %></p>
+                    <p>Total: ₹<%= order.totalAmount.toFixed(2) %></p>
+
+                    <div class="order-items">
+                        <% order.items.forEach(item => { %>
+                            <div class="order-item">
+                                <img src="<%= item.product.images[0] %>" alt="<%= item.product.name %>" width="60" />
+                                <div class="item-details">
+                                    <p><strong><%= item.product.name %></strong></p>
+                                    <p>Size: <%= item.size %></p>
+                                    <p>Quantity: <%= item.quantity %></p>
+                                    <p>Price: ₹<%= item.priceAtPurchase.toFixed(2) %></p>
+                                </div>
+                            </div>
+                        <% }) %>
+                    </div>
+
+                    <!-- <a href="/orders/<%= order._id %>" class="view-details-btn">View Details</a>
+                    <hr> -->
+                </div>
+            <% }) %>
+        <% } %>
+    </main>
+</body>
+</html>

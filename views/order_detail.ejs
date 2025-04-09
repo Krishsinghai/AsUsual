@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Details</title>
+    <link rel="stylesheet" href="/styles/orderdetail.css">
+</head>
+<body>
+    <div class="order-detail">
+        <h2>Order Details</h2>
+
+        <div class="order-summary">
+            <div class="summary-section">
+                <h4>Order Information</h4>
+                <p>Order #: <%= order._id.toString() %></p>
+                <p>Date: <%= new Date(order.createdAt).toLocaleString() %></p>
+                <p>Status: <span class="status-badge <%= order.status.toLowerCase() %>"><%= order.status %></span></p>
+                <p>Payment Method: <%= order.paymentMethod %></p>
+                <p>Payment Status: <%= order.paymentStatus %></p>
+            </div>
+
+            <div class="summary-section">
+                <h4>Shipping Address</h4>
+                <p><%= order.shippingAddress.line1 %></p>
+                <% if (order.shippingAddress.line2) { %>
+                    <p><%= order.shippingAddress.line2 %></p>
+                <% } %>
+                <p><%= order.shippingAddress.city %>, <%= order.shippingAddress.state %></p>
+                <p><%= order.shippingAddress.postalCode %>, <%= order.shippingAddress.country %></p>
+                <p>Phone: <%= order.shippingAddress.contactNumber %></p>
+                <% if (order.trackingNumber) { %>
+                    <p>Tracking #: <%= order.trackingNumber %></p>
+                <% } %>
+            </div>
+        </div>
+
+        <div class="order-items">
+            <h4>Items</h4>
+            <% order.items.forEach(item => { %>
+                <div class="order-item">
+                    <img src="<%= item.product.images[0] %>" alt="<%= item.product.name %>" class="item-image" />
+                    <div class="item-details">
+                        <a href="/products/<%= item.product._id.toString() %>" class="product-name"><%= item.product.name %></a>
+                        <p>Size: <%= item.size %></p>
+                        <p>Quantity: <%= item.quantity %></p>
+                        <p>Price: ₹<%= item.priceAtPurchase.toFixed(2) %></p>
+                    </div>
+                    <div class="item-total">
+                        ₹<%= (item.priceAtPurchase * item.quantity).toFixed(2) %>
+                    </div>
+                </div>
+            <% }) %>
+        </div>
+
+        <div class="order-totals">
+            <div class="total-row">
+                <span>Subtotal:</span>
+                <span>₹<%= order.subtotal.toFixed(2) %></span>
+            </div>
+            <% if (order.discountAmount > 0) { %>
+                <div class="total-row">
+                    <span>Discount:</span>
+                    <span>-₹<%= order.discountAmount.toFixed(2) %></span>
+                </div>
+            <% } %>
+            <div class="total-row">
+                <span>Shipping:</span>
+                <span>₹<%= order.shippingFee.toFixed(2) %></span>
+            </div>
+            <div class="total-row grand-total">
+                <span>Total:</span>
+                <span>₹<%= order.totalAmount.toFixed(2) %></span>
+            </div>
+        </div>
+
+        <div class="order-actions">
+            <% if (order.status === 'Pending') { %>
+                <button class="btn cancel-order">Cancel Order</button>
+            <% } %>
+            <a href="/orders" class="btn back-to-orders">Back to Orders</a>
+        </div>
+    </div>
+</body>
+</html>

@@ -19,7 +19,6 @@ body {
   background-color: var(--background-dark);
   color: var(--text-light);
   overflow-x: hidden;
-
 }
 
 /* Page 1 */
@@ -37,7 +36,7 @@ body {
   position: absolute;
   z-index: 999;
   left: 40%;
-  top:25%;
+  top: 25%;
   transition: all 0.3s ease-in-out;
   transition: all cubic-bezier(0.075, 0.82, 0.165, 1);
 }
@@ -91,9 +90,9 @@ body {
   content: "ASUSUAL";
   position: absolute;
   bottom: 0;
-  left: 0;
+  left: 15px;
   font-weight: 600;
-  font-size: 6em;
+  font-size: 4rem;
   color: rgba(255, 255, 255, 0.1);
 }
 
@@ -187,8 +186,8 @@ body {
   transition: visibility 0.3s, opacity 0.3s ease;
 }
 
-
-.front, .back {
+.front,
+.back {
   width: 100%;
   height: 100%;
   position: absolute;
@@ -198,7 +197,8 @@ body {
   align-items: center;
 }
 
-.front img, .back img {
+.front img,
+.back img {
   max-width: 100%;
   max-height: 100%;
 }
@@ -228,8 +228,7 @@ body {
   .move_image {
     height: 260px;
     left: 40%;
-}
-
+  }
 }
 
 @media only screen and (max-width: 600px) {
@@ -240,7 +239,7 @@ body {
     height: 110px;
     /* left: 40%; */
     top: 24%;
-}
+  }
 
   #page2 {
     justify-content: center;
@@ -281,15 +280,15 @@ body {
   }
 
   .card .contentBox {
-    margin-top: -20px;
+    margin-top: -36px;
     padding: 0;
   }
 
   .card::after {
-    font-size: 3em;
-    left: 12px;
+    font-size: 3rem;
+    left: 20px;
   }
-  .AS-nav-btn li a{
+  .AS-nav-btn li a {
     padding: 0 15px;
   }
 }
@@ -303,9 +302,6 @@ body {
   white-space: nowrap;
   overflow: hidden;
   position: relative;
-
-
-  
 
   font-family: "Dancing Script", cursive;
   font-optical-sizing: auto;
@@ -359,13 +355,12 @@ body {
   flex-wrap: wrap;
 }
 
-@media only screen and (max-width: 600px){
-  .profile-details{
-    left: -100%; 
+@media only screen and (max-width: 600px) {
+  .profile-details {
+    left: -100%;
     font-size: smaller;
   }
-  .profile-details i{
+  .profile-details i {
     display: none;
   }
-
 }

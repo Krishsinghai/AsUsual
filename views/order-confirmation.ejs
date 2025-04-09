@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Confirmation</title>
+    <link rel="stylesheet" href="/styles/cart.css">
+</head>
+<body>
+    <div class="confirmation-container">
+        <h2>Order Confirmation</h2>
+        <div class="confirmation-details">
+            <p>Thank you for your order, <strong><%= user.name %></strong>!</p>
+            <p>Your order ID is: <strong><%= order._id %></strong></p>
+            <p>Total Amount: <strong>Rs <%= order.totalAmount.toFixed(2) %></strong></p>
+            <p>Status: <span class="status-<%= order.status.toLowerCase() %>"><%= order.status %></span></p>
+            
+            <h3>Shipping Details</h3>
+            <address>
+                <%= order.shippingAddress.line1 %><br>
+                <% if (order.shippingAddress.line2) { %>
+                    <%= order.shippingAddress.line2 %><br>
+                <% } %>
+                <%= order.shippingAddress.city %>, <%= order.shippingAddress.state %><br>
+                <%= order.shippingAddress.postalCode %>, <%= order.shippingAddress.country %><br>
+                Phone: <%= order.shippingAddress.contactNumber %>
+            </address>
+            <a href="/" class="continue-shopping-btn">Continue Shopping</a>
+        </div>
+    </div>
+</body>
+</html>

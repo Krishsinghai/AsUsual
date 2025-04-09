@@ -38,6 +38,8 @@ app.use(session({
     saveUninitialized: true,
     cookie: { secure: false, maxAge: 3600000 } // 1 hour
 }));
+app.use(express.json()); // For JSON bodies
+app.use(express.urlencoded({ extended: true })); // For form data
 
 const otpCache = {};
 
@@ -87,6 +89,7 @@ const Cart = require('./models/CartSchema');
 const Admin = require('./models/AdminSchema');
 const CustomTshirt = require('./models/CustomTshirtSchema');
 const Poster = require('./models/posterSchema');
+const Order = require('./models/OrderSchema');
 const Coupon = require('./models/CouponSchema '); // Adjust path if needed
 
 
@@ -311,7 +314,7 @@ app.get('/add-product', (req, res) => {
 });
 
 
-
+//ai based report analysis ,weekly analysis of police  criminal prediction
 
 // Add to Cart Route
 app.post('/add-to-cart', async (req, res) => {
@@ -321,10 +324,7 @@ app.post('/add-to-cart', async (req, res) => {
     const userId = req.session.userId || req.cookies.userId;
 
     if (!userId) {
-        return res.json({ 
-            message: 'Please log in to add items to your cart',
-            redirect: '/signup  '
-        });
+        return res.status(401).json({ message: 'Please log in to add items to your cart' });
     }
 
     try {
@@ -344,49 +344,47 @@ app.post('/add-to-cart', async (req, res) => {
                 // Add new item to the cart
                 cart.items.push({ product: productId, quantity: parseInt(quantity, 10), size });
             }
-
             await cart.save();
+            res.redirect('/cart')
         } else {
             // Create a new cart if it doesn't exist
             const newCart = new Cart({
                 user: userId,
                 items: [{ product: productId, quantity: parseInt(quantity, 10), size }]
             });
-            
+
             await newCart.save();
+            res.redirect('/cart')
         }
-        
-        // Return success response
-        res.json({ success: true });
     } catch (error) {
         console.error('Error adding to cart:', error);
-        res.json({ 
-            message: 'Failed to add item to cart. Please try again.',
-            error: error.message 
-        });
+        res.status(500).json({ message: 'Internal server error', error });
     }
 });
 
 
 app.get('/product_details/:id', async (req, res) => {
     try {
-        const productId = req.params.id; // Get the ID from the URL
-        const product = await Product.findById(productId); // Fetch the product from the database
+        const productId = req.params.id;
+        const product = await Product.findById(productId);
 
         if (!product) {
             return res.status(404).send('Product not found');
         }
 
-        // Get user ID from session or cookie
         const userId = req.session.userId || req.cookies.userId;
-        let user = { name: 'Guest' }; // Default user object for guests
+        let user = { name: 'Guest' };
 
         if (userId) {
-            user = await User.findById(userId, 'name _id'); // Fetch user details if logged in
+            user = await User.findById(userId, 'name _id');
         }
 
-        // Pass both product and user to the EJS template
-        res.render('product_detail', { product, user });
+        // Explicitly passing productId as separate variable
+        res.render('product_detail', { 
+            product, 
+            user, 
+            productId: product._id 
+        });
         
     } catch (error) {
         console.error(error);
@@ -457,17 +455,17 @@ app.post('/products/filter', async (req, res) => {
     }
 });
 // product_details
-app.get('/product_details/:id', (req, res) => {
-    const productId = req.params.id;
-    const product = products.find(p => p.id == productId);
+// app.get('/product_details/:id', (req, res) => {
+//     const productId = req.params.id;
+//     const product = products.find(p => p.id == productId);
 
-    if (!product) {
-        return res.status(404).send("Product not found");
-    }
-    console.log(product)
+//     if (!product) {
+//         return res.status(404).send("Product not found");
+//     }
+//     console.log(product)
 
-    res.render('product_detail', { product });
-});
+//     res.render('product_detail', { product });
+// });
 
 
 // GET: Main coupons page with list and form
@@ -735,7 +733,7 @@ app.post('/user/signup', async (req, res) => {
         const user = await User.create({ name, email, phone, password: hashedPassword });
 
         console.log(user);
-        res.redirect('/signup');
+        res.redirect('/');
 
     } catch (error) {
         console.error('Error signing up user:', error);
@@ -751,20 +749,20 @@ app.post('/user/login', async (req, res) => {
         // Validate input
         if (!email || !password) {
             req.session.loginError = 'Please provide both email and password';
-            return res.redirect('/login');
+            return res.redirect('/signup');
         }
 
         const user = await User.findOne({ email });
 
         if (!user) {
             req.session.loginError = 'Invalid email or password';
-            return res.redirect('/login');
+            return res.redirect('/signup');
         }
 
         const isPasswordValid = await bcrypt.compare(password, user.password);
         if (!isPasswordValid) {
             req.session.loginError = 'Invalid email or password';
-            return res.redirect('/login');
+            return res.redirect('/signup');
         }
 
         // Create JWT token
@@ -785,7 +783,7 @@ app.post('/user/login', async (req, res) => {
     } catch (error) {
         console.error('Error logging in user:', error);
         req.session.loginError = 'Error logging in. Please try again.';
-        res.redirect('/login');
+        res.redirect('/signup');
     }
 });
 
@@ -1002,7 +1000,164 @@ app.get('/cart', async (req, res) => {
     }
 });
 
+// Add these routes to your Express app
 
+// Update item quantity
+app.post('/cart/update-quantity', async (req, res) => {
+    try {
+        const { productId, size, quantity } = req.body;
+        let userId = req.user?._id || req.session.userId;
+
+        if (!userId) {
+            return res.status(401).json({ success: false, message: 'Not authenticated' });
+        }
+
+        const cart = await Cart.findOne({ user: userId });
+        if (!cart) {
+            return res.status(404).json({ success: false, message: 'Cart not found' });
+        }
+
+        // Find the item to update
+        const itemIndex = cart.items.findIndex(
+            item => item.product.toString() === productId && item.size === size
+        );
+
+        if (itemIndex === -1) {
+            return res.status(404).json({ success: false, message: 'Item not found in cart' });
+        }
+
+        // Update quantity
+        if (quantity > 0) {
+            cart.items[itemIndex].quantity = quantity;
+        } else {
+            // Remove item if quantity is 0 or less
+            cart.items.splice(itemIndex, 1);
+        }
+
+        await cart.save();
+        res.json({ success: true, cart });
+    } catch (error) {
+        console.error('Error updating cart quantity:', error);
+        res.status(500).json({ success: false, message: 'Error updating cart' });
+    }
+});
+
+// Remove item from cart
+app.post('/cart/remove-item', async (req, res) => {
+    try {
+        const { productId, size } = req.body;
+        let userId = req.user?._id || req.session.userId;
+
+        if (!userId) {
+            return res.status(401).json({ success: false, message: 'Not authenticated' });
+        }
+
+        const cart = await Cart.findOne({ user: userId });
+        if (!cart) {
+            return res.status(404).json({ success: false, message: 'Cart not found' });
+        }
+
+        // Remove the item
+        cart.items = cart.items.filter(
+            item => !(item.product.toString() === productId && item.size === size)
+        );
+
+        await cart.save();
+        res.json({ success: true, cart });
+    } catch (error) {
+        console.error('Error removing item from cart:', error);
+        res.status(500).json({ success: false, message: 'Error removing item from cart' });
+    }
+});
+
+
+app.post('/place-order', async (req, res) => {  // Changed route name
+    try {
+        const userId = req.user?._id || req.session.userId;
+        
+        if (!userId) {
+            return res.status(401).json({ success: false, message: 'Not authenticated' });
+        }
+
+        const cart = await Cart.findOne({ user: userId })
+            .populate('items.product')
+            .populate('appliedCoupon');
+
+        if (!cart || cart.items.length === 0) {
+            return res.status(400).json({ success: false, message: 'Cart is empty' });
+        }
+
+        const orderItems = cart.items.map(item => ({
+            product: item.product._id,
+            quantity: item.quantity,
+            size: item.size,
+            priceAtPurchase: item.product.price
+        }));
+
+        const subtotal = cart.items.reduce((total, item) => 
+            total + (item.product.price * item.quantity), 0);
+        
+        const shippingFee = 5.00;
+        const discountAmount = cart.discountAmount || 0;
+        const totalAmount = subtotal - discountAmount + shippingFee;
+
+        const newOrder = new Order({
+            user: userId,
+            cart: cart._id,
+            items: orderItems,
+            subtotal,
+            discountAmount,
+            shippingFee,
+            totalAmount,
+            paymentMethod: req.body.paymentMethod || 'COD',
+            paymentStatus: 'Pending',
+            shippingAddress: req.body.shippingAddress,
+            couponUsed: cart.appliedCoupon?._id
+        });
+
+        await newOrder.save();
+        
+        // Clear the cart
+        cart.items = [];
+        cart.appliedCoupon = null;
+        cart.discountAmount = 0;
+        await cart.save();
+
+        res.json({ 
+            success: true, 
+            orderId: newOrder._id,
+            message: 'Order created successfully' 
+        });
+
+    } catch (error) {
+        console.error('Error creating order:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: 'Failed to create order' 
+        });
+    }
+});
+
+// Order confirmation page
+app.get('/confirmation/:id', async (req, res) => {
+    try {
+        const order = await Order.findById(req.params.id)
+            .populate('user', 'name email')
+            .populate('items.product', 'name price');
+            
+        if (!order) {
+            return res.status(404).send('Order not found');
+        }
+        
+        res.render('order-confirmation', { 
+            user: req.user || { name: 'Guest' },
+            order 
+        });
+    } catch (error) {
+        console.error('Error fetching order:', error);
+        res.status(500).send('Error loading order details');
+    }
+});
 // Custom tshirt routes
 
 
@@ -1018,7 +1173,64 @@ app.post('/api/save-design', async (req, res) => {
     }
 });
 
+// View all orders (EJS)
+// Get all orders for the current user
+// Get all orders (without user filtering)
+app.get('/orders', async (req, res) => {
+    try {
+        const orders = await Order.find()
+            .populate('items.product', 'name images price')
+            .sort({ createdAt: -1 });
 
+        res.render('order', { orders });
+    } catch (error) {
+        console.error('Error fetching orders:', error);
+        res.status(500).render('error', { message: 'Server error fetching orders' });
+    }
+});
+
+// GET: All Orders for a Logged-In User
+app.get('/all-orders', async (req, res) => {
+    try {
+        const userId = req.session.userId || req.cookies.userId;
+
+        if (!userId) {
+            return res.redirect('/signup');
+        }
+
+        const orders = await Order.find({ user: userId })
+            .populate({
+                path: 'items.product',
+                select: 'name images price'
+            })
+            .sort({ createdAt: -1 });
+
+        res.render('allOrders', {
+            orders
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Server Error');
+    }
+});
+
+
+// Get specific order details (without user checking)
+app.get('/orders/:id', async (req, res) => {
+    try {
+        const order = await Order.findById(req.params.id)
+            .populate('items.product', 'name images price description');
+
+        if (!order) {
+            return res.status(404).render('error', { message: 'Order not found' });
+        }
+
+        res.render('order_detail', { order });
+    } catch (error) {
+        console.error('Error fetching order details:', error);
+        res.status(500).render('error', { message: 'Server error fetching order details' });
+    }
+});
 
 
 app.get('/show-design', async (req, res) => {
@@ -1046,6 +1258,12 @@ app.get('/contact', (req, res) => {
 app.get('/about', (req, res) => {
     res.render('aboutUs');
 });
+app.get('/terms-and-condition', (req,res)=>{
+    res.render('termsandcondition');
+})
+app.get('/privacy_policy', (req,res)=>{
+    res.render('./privacypolicy');
+})
 
 
 
@@ -1053,49 +1271,53 @@ app.get('/about', (req, res) => {
 // ... [all your existing middleware and routes] ...
 
 // Create HTTP server
-const server = app.listen(PORT, '0.0.0.0', () => {
+// const server = app.listen(PORT, '0.0.0.0', () => {
+//     console.log(`Server is running on http://localhost:${PORT}`);
+// });
+
+// // Connection timeout handler
+// // Enhanced connection timeout handler
+// server.on('connection', (socket) => {
+//     const clientId = `${socket.remoteAddress}:${socket.remotePort}`;
+//     console.log(`New connection from ${clientId}`);
+
+//     // Set timeout to 30 seconds (30000ms)
+//     socket.setTimeout(30000);
+
+//     socket.on('timeout', () => {
+//         console.log(`[TIMEOUT] Closing idle connection ${clientId}`);
+//         socket.destroy();
+//     });
+
+//     socket.on('close', (hadError) => {
+//         console.log(`[CLOSE] Connection ${clientId} closed`, 
+//                    hadError ? 'with error' : 'cleanly');
+//     });
+
+//     socket.on('error', (err) => {
+//         console.error(`[ERROR] ${clientId}:`, err.message);
+//     });
+// });
+// // Handle process termination
+// process.on('SIGTERM', shutdown);
+// process.on('SIGINT', shutdown);
+
+// function shutdown() {
+//     console.log('Shutting down gracefully...');
+//     server.close(() => {
+//         mongoose.connection.close(false, () => {
+//             console.log('All connections closed');
+//             process.exit(0);
+//         });
+//     });
+    
+//     // Force shutdown after 5 seconds
+//     setTimeout(() => {
+//         console.error('Forcing shutdown after timeout');
+//         process.exit(1);
+//     }, 5000);
+// }
+// Start the server on the specified port
+app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
 });
-
-// Connection timeout handler
-// Enhanced connection timeout handler
-server.on('connection', (socket) => {
-    const clientId = `${socket.remoteAddress}:${socket.remotePort}`;
-    console.log(`New connection from ${clientId}`);
-
-    // Set timeout to 30 seconds (30000ms)
-    socket.setTimeout(30000);
-
-    socket.on('timeout', () => {
-        console.log(`[TIMEOUT] Closing idle connection ${clientId}`);
-        socket.destroy();
-    });
-
-    socket.on('close', (hadError) => {
-        console.log(`[CLOSE] Connection ${clientId} closed`, 
-                   hadError ? 'with error' : 'cleanly');
-    });
-
-    socket.on('error', (err) => {
-        console.error(`[ERROR] ${clientId}:`, err.message);
-    });
-});
-// Handle process termination
-process.on('SIGTERM', shutdown);
-process.on('SIGINT', shutdown);
-
-function shutdown() {
-    console.log('Shutting down gracefully...');
-    server.close(() => {
-        mongoose.connection.close(false, () => {
-            console.log('All connections closed');
-            process.exit(0);
-        });
-    });
-    
-    // Force shutdown after 5 seconds
-    setTimeout(() => {
-        console.error('Forcing shutdown after timeout');
-        process.exit(1);
-    }, 5000);
-}

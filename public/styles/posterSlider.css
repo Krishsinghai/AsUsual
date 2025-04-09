@@ -12,12 +12,10 @@
 }
 
 body {
-  min-height: 100vh;
   margin: 0;
   padding: 0;
   overflow: hidden;
   font-family: Lora, serif;
-  font-size: calc(14px + .3vw);
 }
 
 .slider {
@@ -87,7 +85,7 @@ body {
   top: -1em;
   width: calc(100% + 1em * 2);
   height: calc(100% + 1em * 2);
-  object-fit: contain;
+  object-fit: cover;
   will-change: transform;
 }
 .slider__images-item--active {
@@ -204,6 +202,7 @@ body {
   display: flex;
   justify-content: space-between;
   width: 100%;
+  height: 100%;
   position: absolute;
   top: 0;
   left: 0;
@@ -333,7 +332,7 @@ body {
   /* Slider container */
   .slider {
     width: 100vw;
-    height: 100vh;
+    height: 50vh;
   }
 
   /* Hide pseudo-elements for background images on mobile */
@@ -345,8 +344,7 @@ body {
   /* Adjust slider content dimensions for mobile */
   .slider__content {
     width: 100vw;
-    height: 100vh;
-    max-height: 100vh;
+    height: 100%;
     transform: translateZ(calc(var(--z-distance) / 2)); /* Reduce depth effect */
   }
 
@@ -407,6 +405,7 @@ body {
 
   /* Left arrow styling */
   .slider__nav-arrow--left {
+    height: 100%;
     background-image: linear-gradient(to right, rgba(0, 0, 0, 0.5) 0, transparent 100%);
   }
   .slider__nav-arrow--left:active {
@@ -415,6 +414,7 @@ body {
 
   /* Right arrow styling */
   .slider__nav-arrow--right {
+    height: 100%;
     background-image: linear-gradient(to left, rgba(0, 0, 0, 0.5) 0, transparent 100%);
   }
   .slider__nav-arrow--right:active {
@@ -423,7 +423,7 @@ body {
 
   /* Navigation dots */
   .slider__nav-dots {
-    margin-top: 85vh; /* Position dots closer to the bottom */
+    margin-top: 50vh; /* Position dots closer to the bottom */
     background-color: rgba(0, 0, 0, 0.4); /* Semi-transparent background */
     padding: 0.5em;
     border-radius: 1em; /* Rounded corners */

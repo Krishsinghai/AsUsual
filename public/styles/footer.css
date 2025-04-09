@@ -20,14 +20,15 @@ body {
 .footer {
   position: relative;
   margin-top: 10%;
-  padding: 3rem 0;
+  /* padding: 3rem 0; */
   color: #fff;
   background: #000;
-  margin-top: auto;
+  /* margin-top: auto; */
 }
 .footer__columns {
   display: flex;
-  justify-content: space-between;
+  justify-content: space-evenly;
+  padding: 3.2rem;
 }
 .footer__col-title {
   font-size: 1.6rem;
@@ -52,6 +53,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
+  list-style: none;
 }
 .footer__copyrights {
   padding-top: 3rem;
@@ -118,8 +120,8 @@ body {
 .footer__parralax {
   position: absolute;
   left: 0;
-  top: -300px;
-  height: 300px;
+  top: -94px;
+  height: 150px;
   width: 100%;
   overflow: hidden;
 }
@@ -135,10 +137,10 @@ body {
 }
   .footer__parralax-moto {
     position: absolute;
-    bottom: 80px;
+    bottom: 10px;
     left: 50%;
     margin-left: -250px;
-    height: 200px;
+    height: 180px;
     width: 150px;
     /* background: url(https://i.ibb.co/JCGfFJd/moto-net.gif); */
     background: url(https://mir-s3-cdn-cf.behance.net/project_modules/max_1200/c383c563741941.5cf42b23dc6b2.gif);
@@ -148,6 +150,7 @@ body {
     background-size: cover;
     background-position: center;
     mix-blend-mode: multiply;
+    z-index: 2;
     /* border:2px solid black; */
   }
 .footer__parralax-voiture {
@@ -168,15 +171,140 @@ body {
 
 }
 .footer__parralax-trees {
-  background-image: url(https://i.ibb.co/nQM4PGJ/arbres.png);
+  background-image: url(../assests/Tree.png);
   bottom: -60px;
   animation-duration: 1000s;
+  z-index: 1;
 }
 .footer__parralax-premierplan {
-  background-image: url(https://i.ibb.co/RQhDWbk/premierplanv3.png);
+  background-image: url(../assests/premierplanv3.png);
   animation-duration: 500s;
 }
 .footer__parralax-secondplan {
-  background-image: url(https://i.ibb.co/J3TjC4W/second-plan.png);
+  background-image: url(../assests/second-plan.png);
   animation-duration: 600s;
+}
+
+
+/* this is reponsive css for the footer */
+/* Responsive CSS for Mobile and Tablet */
+
+@media (max-width: 768px) {
+  /* General adjustments */
+  .container {
+    max-width: 100%;
+    padding: 0 1rem;
+  }
+
+  .footer {
+    margin-top: 5%;
+    /* padding: 2rem 0; */
+  }
+
+  .footer__columns {
+    /* flex-direction: column; */
+    /* gap: 2rem; */
+    padding: 2rem 0 0 0;
+  }
+
+  .footer__col-title {
+    font-size: 1.4rem;
+    text-align: center;
+  }
+
+  .footer__nav-list {
+    gap: 1rem;
+    padding: 1rem;
+  }
+
+  .footer__copyrights {
+    padding-top: 2rem;
+    margin-top: 2rem;
+  }
+
+  .footer__copyrights p {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .footer__copyrights p a {
+    margin-left: 0;
+    margin-top: 0.5rem;
+  }
+
+  /* Adjustments for parallax elements */
+  .footer__parralax {
+    height: 100px;
+    top: -60px;
+  }
+
+  .footer__parralax-moto {
+    height: 120px;
+    width: 100px;
+    margin-left: -100px;
+    bottom: 5px;
+  }
+
+  .footer__parralax-voiture {
+    height: 80px;
+    width: 140px;
+    margin-left: 100px;
+    bottom: 5px;
+  }
+
+  .footer__parralax-trees,
+  .footer__parralax-premierplan,
+  .footer__parralax-secondplan {
+    background-size: auto 80px;
+  }
+
+  /* Animation speed adjustments */
+  .footer__parralax-trees {
+    animation-duration: 800s;
+  }
+
+  .footer__parralax-premierplan {
+    animation-duration: 400s;
+  }
+
+  .footer__parralax-secondplan {
+    animation-duration: 500s;
+  }
+}
+
+@media (max-width: 480px) {
+  /* Further adjustments for smaller mobile devices */
+  .footer__col-title {
+    font-size: 1.2rem;
+  }
+
+  .footer__nav-list {
+    gap: 0.8rem;
+  }
+
+  .footer__parralax {
+    height: 80px;
+    top: -40px;
+  }
+
+  .footer__parralax-moto {
+    height: 90px;
+    width: 70px;
+    margin-left: -50px;
+    bottom: 3px;
+  }
+
+  .footer__parralax-voiture {
+    height: 60px;
+    width: 100px;
+    margin-left: 50px;
+    bottom: 3px;
+  }
+
+  .footer__parralax-trees,
+  .footer__parralax-premierplan,
+  .footer__parralax-secondplan {
+    background-size: auto 60px;
+  }
 }

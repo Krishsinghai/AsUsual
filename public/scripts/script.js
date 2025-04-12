@@ -186,6 +186,23 @@ function initializeAnimations() {
 
 
 // script for 3d slider
+
+
+gsap.from(".ninja-word", {
+  scrollTrigger: {
+    trigger: ".ninja-word",
+    start: "top 80%",
+    toggleActions: "play none none reverse"
+  },
+  opacity: 0,
+  y: 80,
+  scale: 0.9,
+  stagger: 0.2,
+  ease: "power4.out",
+  duration: 1.5
+});
+
+
 // set and cache variables
 var w, container, carousel, item, radius, itemLength, rY, ticker, fps;
 var mouseX = 0;
@@ -315,16 +332,29 @@ function getRandomInt($n) {
   return Math.floor((Math.random() * $n) + 1);
 }
 
-gsap.from(".ninja-word", {
-  scrollTrigger: {
-    trigger: ".ninja-word",
-    start: "top 80%",
-    toggleActions: "play none none reverse"
+
+
+
+
+const swiper = new Swiper('.mySwiper', {
+  effect: "coverflow",
+  grabCursor: true,
+  centeredSlides: true,
+  slidesPerView: "auto", // Important for different sizes
+  loop: true,
+  autoplay: {
+    delay: 4000,
+    disableOnInteraction: false,
   },
-  opacity: 0,
-  y: 80,
-  scale: 0.9,
-  stagger: 0.2,
-  ease: "power4.out",
-  duration: 1.5
+  coverflowEffect: {
+    rotate: 0,
+    stretch: 0,
+    depth: 100,
+    modifier: 2.5,
+    slideShadows: false,
+  },
+  pagination: {
+    el: ".swiper-pagination",
+    clickable: true,
+  },
 });

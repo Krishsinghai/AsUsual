@@ -14,7 +14,7 @@
     <link rel="stylesheet" href="styles/horizontal.css">
     <link rel="stylesheet" href="styles/navbar.css">
     <link rel="stylesheet" href="styles/loader.css">
-    <link rel="stylesheet" href="styles/posterSlider.css">  
+    <link rel="stylesheet" href="styles/posterSlider.css">
     <link rel="stylesheet" href="styles/slider3d.css">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -34,10 +34,18 @@
     <!-- Tailwind CSS CDN (Play CDN for quick testing) -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- GSAP Core -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-<!-- ScrollTrigger Plugin -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <!-- ScrollTrigger Plugin -->
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <!-- Swiper CSS -->
+    <link rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
 
+    <!-- Swiper JS -->
+    <script
+      src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 
   </head>
 
@@ -96,7 +104,8 @@
             <% if (user) { %>
             <li><a href="/cart"><i class="fas fa-shopping-cart"></i>
                 <span>Cart</span></a></li>
-            <li><a href="/all-orders"><i class="fa fa-shirt"></i><span>Your Orders</span></a></li>
+            <li><a href="/all-orders"><i class="fa fa-shirt"></i><span>Your
+                  Orders</span></a></li>
             <!-- Dropdown for logged-in users -->
             <!-- Profile Dropdown -->
             <div class="profile-dropdown">
@@ -214,15 +223,20 @@
 
       <!-- this is new slider try -->
       <div class="page3d">
-        <section >
-          <div class="flex justify-center flex-wrap items-center gap-3 text-center font-extrabold leading-tight">
-            <span class="text-5xl sm:text-6xl md:text-7xl text-red-600 scale-110 rotate-[-3deg] tracking-widest ninja-word">Ninjas,</span>
-            <span class="text-4xl sm:text-5xl md:text-6xl text-white rotate-[-1deg] scale-100 ninja-word">unleash</span>
-            <span class="text-3xl sm:text-4xl md:text-5xl text-red-500 rotate-[2deg] scale-90 ninja-word">your</span>
-            <span class="text-5xl sm:text-6xl md:text-7xl text-white rotate-[4deg] scale-110 tracking-wider ninja-word">style.</span>
+        <section>
+          <div
+            class="flex justify-center flex-wrap items-center gap-3 text-center font-extrabold leading-tight">
+            <span
+              class="text-5xl sm:text-6xl md:text-7xl text-red-600 scale-110 rotate-[-3deg] tracking-widest ninja-word">Ninjas,</span>
+            <span
+              class="text-4xl sm:text-5xl md:text-6xl text-white rotate-[-1deg] scale-100 ninja-word">unleash</span>
+            <span
+              class="text-3xl sm:text-4xl md:text-5xl text-red-500 rotate-[2deg] scale-90 ninja-word">your</span>
+            <span
+              class="text-5xl sm:text-6xl md:text-7xl text-white rotate-[4deg] scale-110 tracking-wider ninja-word">style.</span>
           </div>
         </section>
-        
+
         <div id="contentContainer" class="trans3d">
           <section id="carouselContainer" class="trans3d">
             <% for(let i = 0; i <= 7 && i < Products.length; i++) { %>
@@ -274,47 +288,50 @@
         <section class="bg-black text-white py-16 px-4 sm:px-6 lg:px-20">
           <h2 class="text-3xl sm:text-4xl font-bold text-center mb-12">What Our Shoppers Say</h2>
       
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+          <!-- Swiper -->
+          <div class="swiper mySwiper">
+            <div class="swiper-wrapper">
       
-            <!-- Testimonial 1 -->
-            <div class="bg-zinc-900 p-6 rounded-2xl shadow-lg hover:scale-105 transition-transform duration-300">
-              <p class="text-lg italic mb-4">“AsUsual has completely upgraded my wardrobe. The fit, fabric, and flair—everything's just perfect!”</p>
-              <div class="flex items-center gap-4 mt-6">
-                <img src="https://i.pravatar.cc/50?img=12" alt="User"
-                  class="w-12 h-12 rounded-full border-2 border-white">
-                <div>
-                  <p class="font-semibold">Aanya Sharma</p>
-                  <p class="text-sm text-gray-400">Fashion Blogger</p>
+              <!-- Slide 1 -->
+              <div class="swiper-slide bg-zinc-900 p-6 rounded-2xl shadow-lg">
+                <p class="text-lg italic mb-4">“AsUsual has completely upgraded my wardrobe. The fit, fabric, and flair—everything's just perfect!”</p>
+                <div class="flex items-center gap-4 mt-6">
+                  <img src="https://i.pravatar.cc/50?img=12" alt="User" class="w-12 h-12 rounded-full border-2 border-white">
+                  <div>
+                    <p class="font-semibold">Aanya Sharma</p>
+                    <p class="text-sm text-gray-400">Fashion Blogger</p>
+                  </div>
                 </div>
               </div>
-            </div>
       
-            <!-- Testimonial 2 -->
-            <div class="bg-zinc-900 p-6 rounded-2xl shadow-lg hover:scale-105 transition-transform duration-300">
-              <p class="text-lg italic mb-4">“Love the trendy styles and how comfortable everything feels. AsUsual is now my go-to clothing brand!”</p>
-              <div class="flex items-center gap-4 mt-6">
-                <img src="https://i.pravatar.cc/50?img=8" alt="User"
-                  class="w-12 h-12 rounded-full border-2 border-white">
-                <div>
-                  <p class="font-semibold">Rahul Verma</p>
-                  <p class="text-sm text-gray-400">Graphic Designer</p>
+              <!-- Slide 2 -->
+              <div class="swiper-slide bg-zinc-900 p-6 rounded-2xl shadow-lg">
+                <p class="text-lg italic mb-4">“Love the trendy styles and how comfortable everything feels. AsUsual is now my go-to clothing brand!”</p>
+                <div class="flex items-center gap-4 mt-6">
+                  <img src="https://i.pravatar.cc/50?img=8" alt="User" class="w-12 h-12 rounded-full border-2 border-white">
+                  <div>
+                    <p class="font-semibold">Rahul Verma</p>
+                    <p class="text-sm text-gray-400">Graphic Designer</p>
+                  </div>
                 </div>
               </div>
-            </div>
       
-            <!-- Testimonial 3 -->
-            <div class="bg-zinc-900 p-6 rounded-2xl shadow-lg hover:scale-105 transition-transform duration-300">
-              <p class="text-lg italic mb-4">“Customer service is excellent and delivery is super quick. I’ve been recommending AsUsual to all my friends!”</p>
-              <div class="flex items-center gap-4 mt-6">
-                <img src="https://i.pravatar.cc/50?img=5" alt="User"
-                  class="w-12 h-12 rounded-full border-2 border-white">
-                <div>
-                  <p class="font-semibold">Zoya Malik</p>
-                  <p class="text-sm text-gray-400">Lifestyle Influencer</p>
+              <!-- Slide 3 -->
+              <div class="swiper-slide bg-zinc-900 p-6 rounded-2xl shadow-lg">
+                <p class="text-lg italic mb-4">“Customer service is excellent and delivery is super quick. I’ve been recommending AsUsual to all my friends!”</p>
+                <div class="flex items-center gap-4 mt-6">
+                  <img src="https://i.pravatar.cc/50?img=5" alt="User" class="w-12 h-12 rounded-full border-2 border-white">
+                  <div>
+                    <p class="font-semibold">Zoya Malik</p>
+                    <p class="text-sm text-gray-400">Lifestyle Influencer</p>
+                  </div>
                 </div>
               </div>
+      
             </div>
       
+            <!-- Swiper Controls -->
+            <div class="swiper-pagination mt-6"></div>
           </div>
         </section>
       </div>
@@ -338,22 +355,22 @@
               <nav class="footer__nav">
                 <ul class="footer__nav-list">
                   <li class="footer__nav-item">
-                    <a href ="/about">
+                    <a href="/about">
                       About Us
                     </a>
                   </li>
                   <li class="footer__nav-item">
-                    <a href ="/contact">
+                    <a href="/contact">
                       Contact Us
                     </a>
                   </li>
                   <li class="footer__nav-item">
-                    <a href ="/terms-and-condition">
-                    Terms & Conditions
-                  </a>
-                </li>
-                <li class="footer__nav-item">
-                    <a href ="/privacy_policy">
+                    <a href="/terms-and-condition">
+                      Terms & Conditions
+                    </a>
+                  </li>
+                  <li class="footer__nav-item">
+                    <a href="/privacy_policy">
                       Privacy Policy
                     </a>
                   </li>

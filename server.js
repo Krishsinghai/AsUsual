@@ -10,6 +10,7 @@ const randomstring = require('randomstring')
 const nodemailer = require('nodemailer');
 const session = require('express-session');
 const dotenv = require('dotenv');
+const MongoStore = require('connect-mongo');
 
 // Load environment variables
 dotenv.config();

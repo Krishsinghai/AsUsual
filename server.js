@@ -10,6 +10,7 @@ const randomstring = require('randomstring')
 const nodemailer = require('nodemailer');
 const session = require('express-session');
 const dotenv = require('dotenv');
+const MongoStore = require('connect-mongo');
 
 // Load environment variables
 dotenv.config();
@@ -35,7 +36,8 @@ app.use(cookieParser());
 app.use(session({
     secret: process.env.SESSION_SECRET || 'Preaveen@8233',
     resave: false,
-    saveUninitialized: true,
+    saveUninitialized: false,
+    mongoUrl: process.env.MONGO_URI,
     cookie: { secure: false, maxAge: 3600000 } // 1 hour
 }));
 app.use(express.json()); // For JSON bodies

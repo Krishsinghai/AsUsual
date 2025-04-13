@@ -35,7 +35,8 @@ app.use(cookieParser());
 app.use(session({
     secret: process.env.SESSION_SECRET || 'Preaveen@8233',
     resave: false,
-    saveUninitialized: true,
+    saveUninitialized: false,
+    mongoUrl: process.env.MONGO_URI,
     cookie: { secure: false, maxAge: 3600000 } // 1 hour
 }));
 app.use(express.json()); // For JSON bodies

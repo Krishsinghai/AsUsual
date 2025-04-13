@@ -48,7 +48,7 @@ document.addEventListener("DOMContentLoaded", () => {
   mm.add("(max-width: 767px)", () => {
     // Animations for smaller screens (mobile devices)
     gsap.to(".moon", {
-      scale: 2,
+      scale: 1.3,
       opacity: 1,
       duration: 2,
       ease: "power2.inOut",

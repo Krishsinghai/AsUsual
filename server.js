@@ -1314,10 +1314,8 @@ app.get('/reset-password/:id', async (req, res) => {
     }
 });
 
-  
-  
-  // Route to handle password reset submission
-  app.post('/reset-password-submit', async (req, res) => {
+// Route to handle password reset submission
+app.post('/reset-password-submit', async (req, res) => {
     const { userId, token, password } = req.body;
 
     try {

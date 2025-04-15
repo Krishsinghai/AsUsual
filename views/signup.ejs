@@ -34,15 +34,16 @@
 </div>
 
 <!-- Sign In Form -->
-<!-- Sign In Form -->
 <div class="form-container sign-in-container">
     <form action="/user/login" method="POST" id="loginForm">
         <h1>Sign in</h1>
         <span>or use your account</span>
         <input type="email" name="email" placeholder="Email" required />
-        <input type="password" name="password" placeholder="Password" required />
-        <a href="#">Forgot your password?</a>
-        <button type="submit">Sign In</button>
+        <input type="password" name="password" id="passwordSignin" placeholder="Password" required />
+
+
+        <a href="/forget-password">Forgot your password?</a>
+        <button type="submit" id="signIn">Sign In</button>
     </form>
 </div>
             <!-- Overlay -->
@@ -134,25 +135,6 @@
             const otp = document.getElementById('otpSignup').value;
             if (email && otp) {
                 verifyOTP(email, otp, 'otpVerifiedSignup', 'passwordSignup', 'confirmPasswordSignup', 'signUp');
-            }
-        });
-
-        // Login OTP Generation
-        document.getElementById('generateOtpSignin').addEventListener('click', function() {
-            const email = document.querySelector('#loginForm input[name="email"]').value;
-            if (!email) {
-                alert('Please enter your email first.');
-                return;
-            }
-            generateAndSendOTP(email, 'otpSignin', 'verifyOtpSignin');
-        });
-
-        // Login OTP Verification
-        document.getElementById('verifyOtpSignin').addEventListener('click', function() {
-            const email = document.querySelector('#loginForm input[name="email"]').value;
-            const otp = document.getElementById('otpSignin').value;
-            if (email && otp) {
-                verifyOTP(email, otp, 'otpVerifiedSignin', 'passwordSignin', null, 'signIn');
             }
         });
 

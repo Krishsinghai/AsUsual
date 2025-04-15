@@ -10,6 +10,7 @@ const randomstring = require('randomstring')
 const nodemailer = require('nodemailer');
 const session = require('express-session');
 const dotenv = require('dotenv');
+const crypto = require('crypto');
 const MongoStore = require('connect-mongo');
 
 // Load environment variables
@@ -57,6 +58,7 @@ function sendOTP(email,otp){
         text: `your otp is :${otp}`
     };
 
+    
     let transporter= nodemailer.createTransport({
         service: 'Gmail',
         auth:{
@@ -1289,7 +1291,137 @@ app.get('/show-design', async (req, res) => {
     }
 }); 
 
+// Route to display reset password form
+app.get('/reset-password/:id', async (req, res) => {
+    const { id } = req.params;
+  
+    try {
+        // Find the user by their ID
+        const user = await User.findById(id);
 
+        if (!user) {
+            return res.status(400).send('Invalid or expired reset token');
+        }
+  
+        // Token is valid, render the reset password form with userId and token
+        res.render('reset_password', {
+            userId: user._id,
+            token: user.resetToken
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Internal server error');
+    }
+});
+
+  
+  
+  // Route to handle password reset submission
+  app.post('/reset-password-submit', async (req, res) => {
+    const { userId, token, password } = req.body;
+
+    try {
+        const user = await User.findOne({
+            _id: userId,
+            resetToken: token,
+            resetTokenExpiration: { $gt: Date.now() }
+        });
+
+        if (!user) {
+            return res.status(400).send('Invalid or expired reset token');
+        }
+
+        const hashedPassword = await bcrypt.hash(password, 10);
+        user.password = hashedPassword;
+        user.resetToken = undefined;
+        user.resetTokenExpiration = undefined;
+
+        await user.save();
+
+        // Send a success page with alert and redirect
+        return res.send(`
+            <script>
+              alert('Password has been reset successfully');
+              window.location.href = '/signup';
+            </script>
+        `);
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Something went wrong. Try again later.');
+    }
+});
+
+
+  
+  
+  // Route to send reset link (via email)
+  app.post('/reset-password', async (req, res) => {
+    const { email } = req.body;
+
+    try {
+        const user = await User.findOne({ email });
+
+        if (!user) {
+            return res.render('forget_password', { message: "Email not registered" });
+        }
+
+        // Generate a reset token and store it in the database with expiration time
+        const resetToken = crypto.randomBytes(20).toString('hex');
+        const resetTokenExpiration = Date.now() + 15 * 60 * 1000; // 15 minutes from now
+
+        user.resetToken = resetToken;
+        user.resetTokenExpiration = resetTokenExpiration;
+
+        await user.save();
+
+        // Send the reset link via email
+        const resetLink = `${process.env.BASE_URL || 'http://localhost:8000'}/reset-password/${user._id}`;
+
+        const mailOptions = {
+            from: 'asusualclothing@gmail.com',
+            to: email,
+            subject: 'Assusal Password Reset',
+            html: `
+                <h2>Hello ${user.name},</h2>
+                <p>Click below to reset your password:</p>
+                <a href="${resetLink}">Reset Password</a>
+                <p>This link will expire in 15 minutes.</p>
+            `,
+        };
+
+        let transporter = nodemailer.createTransport({
+            service: 'Gmail',
+            auth: {
+                user: process.env.EMAIL_USER,
+                pass: process.env.EMAIL_PASSWORD,
+            },
+            tls: {
+                rejectUnauthorized: true,
+            },
+        });
+
+        // Send email with the reset link
+        transporter.sendMail(mailOptions, (error, info) => {
+            if (error) {
+                console.log('Error:', error);
+            } else {
+                console.log('Reset Password Email sent:', info.response);
+            }
+        });
+
+        res.render('forget_password', { message: "Password reset link sent to your email!" });
+    } catch (err) {
+        console.error(err);
+        res.render('forget_password', { message: "Something went wrong. Try again later." });
+    }
+});
+
+  
+
+app.get('/forget-password', (req,res)=>{
+    res.render('forget_password', { message: "No user found with that email." });
+
+});
 
 app.get('/contact', (req, res) => {
     res.render('contactUs');
@@ -1305,58 +1437,6 @@ app.get('/privacy_policy', (req,res)=>{
     res.render('./privacypolicy');
 })
 
-
-
-// Start the server on the specified port
-// ... [all your existing middleware and routes] ...
-
-// Create HTTP server
-// const server = app.listen(PORT, '0.0.0.0', () => {
-//     console.log(`Server is running on http://localhost:${PORT}`);
-// });
-
-// // Connection timeout handler
-// // Enhanced connection timeout handler
-// server.on('connection', (socket) => {
-//     const clientId = `${socket.remoteAddress}:${socket.remotePort}`;
-//     console.log(`New connection from ${clientId}`);
-
-//     // Set timeout to 30 seconds (30000ms)
-//     socket.setTimeout(30000);
-
-//     socket.on('timeout', () => {
-//         console.log(`[TIMEOUT] Closing idle connection ${clientId}`);
-//         socket.destroy();
-//     });
-
-//     socket.on('close', (hadError) => {
-//         console.log(`[CLOSE] Connection ${clientId} closed`, 
-//                    hadError ? 'with error' : 'cleanly');
-//     });
-
-//     socket.on('error', (err) => {
-//         console.error(`[ERROR] ${clientId}:`, err.message);
-//     });
-// });
-// // Handle process termination
-// process.on('SIGTERM', shutdown);
-// process.on('SIGINT', shutdown);
-
-// function shutdown() {
-//     console.log('Shutting down gracefully...');
-//     server.close(() => {
-//         mongoose.connection.close(false, () => {
-//             console.log('All connections closed');
-//             process.exit(0);
-//         });
-//     });
-    
-//     // Force shutdown after 5 seconds
-//     setTimeout(() => {
-//         console.error('Forcing shutdown after timeout');
-//         process.exit(1);
-//     }, 5000);
-// }
 // Start the server on the specified port
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);

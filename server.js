@@ -337,7 +337,12 @@ app.post('/add-to-cart', async (req, res) => {
     const userId = req.session.userId || req.cookies.userId;
 
     if (!userId) {
-        return res.status(401).json({ message: 'Please log in to add items to your cart' });
+        return res.send(`
+            <script>
+              alert('Please log in to add item to cart');
+              window.location.href = '/signup';
+            </script>
+        `);
     }
 
     try {

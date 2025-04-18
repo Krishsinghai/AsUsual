@@ -1,192 +1,192 @@
-<!DOCTYPE html>
-<html lang="en">
+    <!DOCTYPE html>
+    <html lang="en">
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>
-        <%= product.name %> - Product Page
-    </title>
-    <link rel="stylesheet" href="/styles/product_detail.css">
-</head>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>
+            <%= product.name %> - Product Page
+        </title>
+        <link rel="stylesheet" href="/styles/product_detail.css">
+    </head>
 
-<body>
-    <div class="container">
-        <!-- Left Section: Scrollable Image Gallery -->
-        <div class="image-gallery">
-            <div class="image-scroll">
-                <% if (product && product.images && product.images.length > 0) { %>
-                    <div class="display_image">
-                        <img src="<%= product.images[0] %>" alt="<%= product.name %>" style="max-width: 100%; height: auto;">
-                    </div>
-                    <div class="change_image">
-                        <% for(let i=0; i < product.images.length; i++) { %>
-                            <img src="<%= product.images[i] %>" alt="<%= product.name %>" style="max-width: 100%; height: auto;">
-                        <% } %>
-                    </div>
-                <% } else { %>
-                    <p>No images available</p>
-                <% } %>
-            </div>
-        </div>
-
-        <!-- Right Section: Product Details -->
-        <div class="product-details">
-            <h2><%= product.name %></h2>
-            <p class="price">₹<%= product.price %></p>
-            <hr>
-            
-            <details>
-                <summary>Size Chart</summary>
-                <table class="size-chart">
-                    <thead>
-                        <tr>
-                            <th>Size</th>
-                            <th>Chest</th>
-                            <th>Shoulder</th>
-                            <th>Length</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>S</td>
-                            <td>44"</td>
-                            <td>21"</td>
-                            <td>29"</td>
-                        </tr>
-                        <tr>
-                            <td>M</td>
-                            <td>46"</td>
-                            <td>22"</td>
-                            <td>29.5"</td>
-                        </tr>
-                        <tr>
-                            <td>L</td>
-                            <td>48"</td>
-                            <td>23"</td>
-                            <td>30"</td>
-                        </tr>
-                        <tr>
-                            <td>XL</td>
-                            <td>50"</td>
-                            <td>24"</td>
-                            <td>30.5"</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </details>
-            <hr>
-         
-            <label>Available sizes:</label>
-            <div class="size-options">
-                <% if (product.sizes && product.sizes.extrasmall > 0) { %>
-                    <button class="size-button" data-size="XS">XS</button>
-                <% } %>
-                <% if (product.sizes && product.sizes.small > 0) { %>
-                    <button class="size-button" data-size="S">S</button>
-                <% } %>
-                <% if (product.sizes && product.sizes.medium > 0) { %>
-                    <button class="size-button" data-size="M">M</button>
-                <% } %>
-                <% if (product.sizes && product.sizes.large > 0) { %>
-                    <button class="size-button" data-size="L">L</button>
-                <% } %>
-                <% if (product.sizes && product.sizes.extralarge > 0) { %>
-                    <button class="size-button" data-size="XL">XL</button>
-                <% } %>
-            </div>
-            
-         
-            <hr>
-            
-            <!-- Quantity Counter and Add to Cart Button -->
-            <div class="cart-actions">
-                <div class="quantity-selector">
-                    <form action="/add-to-cart" method="POST">
-                        <input type="hidden" name="userId" value="<%= user._id %>">
-                        <input type="hidden" name="productId" value="<%= product.id %>">
-                        <input type="hidden" id="selected-size" name="size" value=""> <!-- Hidden input for selected size -->
-
-                        <div class="quantity-controls">
-                            <button type="button" onclick="changeQuantity(-1)">-</button>
-                            <input type="text" id="quantity" name="quantity" value="1" readonly>
-                            <button type="button" onclick="changeQuantity(1)">+</button>
+    <body>
+        <div class="container">
+            <!-- Left Section: Scrollable Image Gallery -->
+            <div class="image-gallery">
+                <div class="image-scroll">
+                    <% if (product && product.images && product.images.length > 0) { %>
+                        <div class="display_image">
+                            <img src="<%= product.images[0] %>" alt="<%= product.name %>" style="max-width: 100%; height: auto;">
                         </div>
-
-                        <button type="submit" class="btn add-to-cart">Add to Cart</button>
-                    </form>
+                        <div class="change_image">
+                            <% for(let i=0; i < product.images.length; i++) { %>
+                                <img src="<%= product.images[i] %>" alt="<%= product.name %>" style="max-width: 100%; height: auto;">
+                            <% } %>
+                        </div>
+                    <% } else { %>
+                        <p>No images available</p>
+                    <% } %>
                 </div>
             </div>
+
+            <!-- Right Section: Product Details -->
+            <div class="product-details">
+                <h2><%= product.name %></h2>
+                <p class="price">₹<%= product.price %></p>
+                <hr>
+                
+                <details>
+                    <summary>Size Chart</summary>
+                    <table class="size-chart">
+                        <thead>
+                            <tr>
+                                <th>Size</th>
+                                <th>Chest</th>
+                                <th>Shoulder</th>
+                                <th>Length</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>S</td>
+                                <td>44"</td>
+                                <td>21"</td>
+                                <td>29"</td>
+                            </tr>
+                            <tr>
+                                <td>M</td>
+                                <td>46"</td>
+                                <td>22"</td>
+                                <td>29.5"</td>
+                            </tr>
+                            <tr>
+                                <td>L</td>
+                                <td>48"</td>
+                                <td>23"</td>
+                                <td>30"</td>
+                            </tr>
+                            <tr>
+                                <td>XL</td>
+                                <td>50"</td>
+                                <td>24"</td>
+                                <td>30.5"</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </details>
+                <hr>
             
-            <button class="btn buy-now">Buy Now</button>
+                <label>Available sizes:</label>
+                <div class="size-options">
+                    <% if (product.sizes && product.sizes.extrasmall > 0) { %>
+                        <button class="size-button" data-size="XS">XS</button>
+                    <% } %>
+                    <% if (product.sizes && product.sizes.small > 0) { %>
+                        <button class="size-button" data-size="S">S</button>
+                    <% } %>
+                    <% if (product.sizes && product.sizes.medium > 0) { %>
+                        <button class="size-button" data-size="M">M</button>
+                    <% } %>
+                    <% if (product.sizes && product.sizes.large > 0) { %>
+                        <button class="size-button" data-size="L">L</button>
+                    <% } %>
+                    <% if (product.sizes && product.sizes.extralarge > 0) { %>
+                        <button class="size-button" data-size="XL">XL</button>
+                    <% } %>
+                </div>
+                
+            
+                <hr>
+                
+                <!-- Quantity Counter and Add to Cart Button -->
+                <div class="cart-actions">
+                    <div class="quantity-selector">
+                        <form action="/add-to-cart" method="POST">
+                            <input type="hidden" name="userId" value="<%= user._id %>">
+                            <input type="hidden" name="productId" value="<%= product.id %>">
+                            <input type="hidden" id="selected-size" name="size" value=""> <!-- Hidden input for selected size -->
 
-            <h4>Description</h4>
-            <p class="price"><%= product.description %></p>
+                            <div class="quantity-controls">
+                                <button type="button" onclick="changeQuantity(-1)">-</button>
+                                <input type="text" id="quantity" name="quantity" value="1" readonly>
+                                <button type="button" onclick="changeQuantity(1)">+</button>
+                            </div>
+
+                            <button type="submit" class="btn add-to-cart">Add to Cart</button>
+                        </form>
+                    </div>
+                </div>
+                
+                <button class="btn buy-now">Buy Now</button>
+
+                <h4>Description</h4>
+                <p class="price"><%= product.description %></p>
+            </div>
         </div>
-    </div>
 
-    <script>
-        // Function to handle size selection
-        function selectSize(size) {
-            const selectedSizeInput = document.getElementById("selected-size");
-            selectedSizeInput.value = size;
+        <script>
+            // Function to handle size selection
+            function selectSize(size) {
+                const selectedSizeInput = document.getElementById("selected-size");
+                selectedSizeInput.value = size;
 
-            // Highlight the selected size button
+                // Highlight the selected size button
+                document.querySelectorAll(".size-button").forEach(button => {
+                    button.classList.remove("selected");
+                });
+                document.querySelector(`.size-button[data-size="${size}"]`).classList.add("selected");
+            }
+
+            // Add event listeners to size buttons
             document.querySelectorAll(".size-button").forEach(button => {
-                button.classList.remove("selected");
+                button.addEventListener("click", () => {
+                    const size = button.getAttribute("data-size");
+                    selectSize(size);
+                });
             });
-            document.querySelector(`.size-button[data-size="${size}"]`).classList.add("selected");
+
+            // Function to change quantity
+            function changeQuantity(change) {
+                const quantityInput = document.getElementById("quantity");
+                let currentQuantity = parseInt(quantityInput.value);
+                currentQuantity = Math.max(1, currentQuantity + change);
+                quantityInput.value = currentQuantity;
+            }
+
+            // Function to validate form submission
+    document.querySelector("form").addEventListener("submit", function(event) {
+        const selectedSize = document.getElementById("selected-size").value;
+        const quantity = parseInt(document.getElementById("quantity").value);
+
+        if (!selectedSize) {
+            event.preventDefault();
+            alert("Please select a size before adding to cart.");
+            return;
         }
 
-        // Add event listeners to size buttons
-        document.querySelectorAll(".size-button").forEach(button => {
-            button.addEventListener("click", () => {
-                const size = button.getAttribute("data-size");
-                selectSize(size);
-            });
-        });
-
-        // Function to change quantity
-        function changeQuantity(change) {
-            const quantityInput = document.getElementById("quantity");
-            let currentQuantity = parseInt(quantityInput.value);
-            currentQuantity = Math.max(1, currentQuantity + change);
-            quantityInput.value = currentQuantity;
+        if (isNaN(quantity) || quantity < 1) {
+            event.preventDefault();
+            alert("Please select a valid quantity.");
         }
+    });
 
-        // Function to validate form submission
-document.querySelector("form").addEventListener("submit", function(event) {
-    const selectedSize = document.getElementById("selected-size").value;
-    const quantity = parseInt(document.getElementById("quantity").value);
+            // Function to toggle product images
+            function toggleImage(index) {
+                const displayImage = document.querySelector(".display_image img");
+                displayImage.src = document.querySelectorAll(".change_image img")[index].src;
+            }
 
-    if (!selectedSize) {
-        event.preventDefault();
-        alert("Please select a size before adding to cart.");
-        return;
-    }
+            // Initially, show the first image
+            toggleImage(0);
 
-    if (isNaN(quantity) || quantity < 1) {
-        event.preventDefault();
-        alert("Please select a valid quantity.");
-    }
-});
-
-        // Function to toggle product images
-        function toggleImage(index) {
-            const displayImage = document.querySelector(".display_image img");
-            displayImage.src = document.querySelectorAll(".change_image img")[index].src;
-        }
-
-        // Initially, show the first image
-        toggleImage(0);
-
-        // Add event listeners to change image when clicked
-        document.querySelectorAll(".change_image img").forEach((img, index) => {
-            img.addEventListener("click", () => {
-                toggleImage(index);
+            // Add event listeners to change image when clicked
+            document.querySelectorAll(".change_image img").forEach((img, index) => {
+                img.addEventListener("click", () => {
+                    toggleImage(index);
+                });
             });
-        });
-    </script>
-</body>
+        </script>
+    </body>
 
-</html>
+    </html>

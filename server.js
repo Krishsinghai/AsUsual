@@ -21,9 +21,9 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Connect to MongoDB Atlas
-mongoose.connect(process.env.MONGO_URI,{
+mongoose.connect(process.env.MONGO_URI, {
     serverSelectionTimeoutMS: 5000, // Timeout after 5 seconds instead of 10
-    socketTimeoutMS: 45000, 
+    socketTimeoutMS: 45000,
 })
     .then(() => console.log('Connected to MongoDB Atlas'))
     .catch(err => console.error('MongoDB connection error:', err));
@@ -46,11 +46,11 @@ app.use(express.urlencoded({ extended: true })); // For form data
 
 const otpCache = {};
 
-function generateOTP(){
-    return randomstring.generate({ length: 4, charset: 'numeric'})
+function generateOTP() {
+    return randomstring.generate({ length: 4, charset: 'numeric' })
 }
 
-function sendOTP(email,otp){
+function sendOTP(email, otp) {
     const mailOPTION = {
         from: 'asusualclothing@gmail.com',
         to: email,
@@ -58,10 +58,10 @@ function sendOTP(email,otp){
         text: `your otp is :${otp}`
     };
 
-    
-    let transporter= nodemailer.createTransport({
+
+    let transporter = nodemailer.createTransport({
         service: 'Gmail',
-        auth:{
+        auth: {
             user: process.env.EMAIL_USER,
             pass: process.env.EMAIL_PASSWORD
 
@@ -69,11 +69,11 @@ function sendOTP(email,otp){
         tls: {
             rejectUnauthorized: true
         }
-    }); 
+    });
 
     transporter.sendMail(mailOPTION, (error, info) => {
-        if(error){
-            console.log('error ',error);
+        if (error) {
+            console.log('error ', error);
         } else {
             console.log('OTP Email sent successfully:', info.response)
         }
@@ -94,7 +94,7 @@ const Admin = require('./models/AdminSchema');
 const CustomTshirt = require('./models/CustomTshirtSchema');
 const Poster = require('./models/posterSchema');
 const Order = require('./models/OrderSchema');
-const Contact= require('./models/Contact')
+const Contact = require('./models/Contact')
 const Coupon = require('./models/CouponSchema '); // Adjust path if needed
 
 
@@ -114,19 +114,46 @@ app.get('/admin-login', (req, res) => {
     res.render("admin_login");
 })
 
-app.get('/edit-poster', (req,res)=>{
+app.get('/edit-poster', (req, res) => {
     res.render("edit_poster")
 })
 
-app.get('/admin-option', (req, res) => {
-    res.render("admin_option");
-})
+app.get('/admin-option', async (req, res) => {
+    try {
+        // Get counts in parallel
+        const [totalProducts, totalOrders, activeCoupons] = await Promise.all([
+            Product.countDocuments(),
+            Order.countDocuments(),
+            Coupon.countDocuments({ active: true })
+        ]);
 
-app.get('/Terms-and-conditions', (req,res)=>{
+        res.render("admin_option", {
+            counts: {
+                totalProducts,
+                totalOrders,
+                activeCoupons
+            },
+            error: null // Explicitly set error to null when there's no error
+        });
+    } catch (error) {
+        console.error('Error fetching counts:', error);
+        // Render with default values if there's an error
+        res.render("admin_option", {
+            counts: {
+                totalProducts: 0,
+                totalOrders: 0,
+                activeCoupons: 0
+            },
+            error: "Failed to load dashboard statistics" // Error message included
+        });
+    }
+});
+
+app.get('/Terms-and-conditions', (req, res) => {
     res.render("termsandcondition")
 })
 
-app.get('/Privacy-policy', (req,res)=>{
+app.get('/Privacy-policy', (req, res) => {
     res.render("privacypolicy")
 })
 
@@ -398,12 +425,12 @@ app.get('/product_details/:id', async (req, res) => {
         }
 
         // Explicitly passing productId as separate variable
-        res.render('product_detail', { 
-            product, 
-            user, 
-            productId: product._id 
+        res.render('product_detail', {
+            product,
+            user,
+            productId: product._id
         });
-        
+
     } catch (error) {
         console.error(error);
         res.status(500).send('Server error');
@@ -413,13 +440,13 @@ app.get('/product_details/:id', async (req, res) => {
 app.get('/Products', async (req, res) => {
     try {
         const products = await Product.find().sort({ createdAt: 'desc' }).lean();
-        res.render('allProduct', { 
+        res.render('allProduct', {
             products: products.map(p => ({
                 ...p,
                 id: p._id.toString() // Ensure id field exists
             }))
         });
-    } catch(error) {
+    } catch (error) {
         console.error('Error fetching products:', error);
         res.status(500).send('Error fetching products');
     }
@@ -443,14 +470,14 @@ app.post('/products/filter', async (req, res) => {
 
     // Case-insensitive color filter
     if (colors && colors.length > 0) {
-        query.color = { 
+        query.color = {
             $in: colors.map(color => new RegExp(`^${color}$`, 'i'))
         };
     }
 
     // Case-insensitive category filter
     if (categories && categories.length > 0) {
-        query.category = { 
+        query.category = {
             $in: categories.map(cat => new RegExp(`^${cat}$`, 'i'))
         };
     }
@@ -489,135 +516,135 @@ app.post('/products/filter', async (req, res) => {
 // GET: Main coupons page with list and form
 app.get('/coupons', async (req, res) => {
     try {
-      const coupons = await Coupon.find().sort({ createdAt: -1 });
-      res.render('coupon_form', { 
-        coupons, 
-        coupon: null 
-      });
+        const coupons = await Coupon.find().sort({ createdAt: -1 });
+        res.render('coupon_form', {
+            coupons,
+            coupon: null
+        });
     } catch (err) {
-      console.error('Error fetching coupons:', err);
-      res.redirect('/coupons');
+        console.error('Error fetching coupons:', err);
+        res.redirect('/coupons');
     }
-  });
-  
-  // GET: Form to add new coupon
-  app.get('/add-coupon', (req, res) => {
-    res.render('coupon_form', {
-      coupons: [],
-      coupon: null
-    });
-  });
-  
-  // GET: Form to edit existing coupon
-  app.get('/edit/:id', async (req, res) => {
-    try {
-      const [coupons, coupon] = await Promise.all([
-        Coupon.find().sort({ createdAt: -1 }),
-        Coupon.findById(req.params.id)
-      ]);
-  
-      if (!coupon) return res.redirect('/coupons');
-  
-      res.render('coupon_form', { 
-        coupons, 
-        coupon 
-      });
-    } catch (err) {
-      console.error('Error in edit route:', err);
-      res.redirect('/coupons');
-    }
-  });
-  
-  // POST: Toggle coupon active status
-  app.post('/toggle-active/:id', async (req, res) => {
-    try {
-      const coupon = await Coupon.findById(req.params.id);
-      if (!coupon) return res.redirect('/coupons');
-  
-      coupon.active = !coupon.active;
-      await coupon.save();
-  
-      res.redirect('/coupons');
-    } catch (err) {
-      console.error('Error toggling coupon status:', err);
-      res.redirect('/coupons');
-    }
-  });
-  
-  // POST: Delete coupon
-  app.post('/delete/:id', async (req, res) => {
-    try {
-      await Coupon.findByIdAndDelete(req.params.id);
-      res.redirect('/coupons');
-    } catch (err) {
-      console.error('Error deleting coupon:', err);
-      res.redirect('/coupons');
-    }
-  });
-  
-  // POST: Create new coupon
-  app.post('/create', async (req, res) => {
-    try {
-      const { code, discountType, discountValue, expiryDate, active } = req.body;
-  
-      if (!code || !discountType || !discountValue || !expiryDate) {
-        return res.redirect('/coupons');
-      }
-  
-      const existingCoupon = await Coupon.findOne({ code });
-      if (existingCoupon) {
-        return res.redirect('/coupons');
-      }
-  
-      const coupon = new Coupon({
-        code,
-        discountType,
-        discountValue: Number(discountValue),
-        expiryDate: new Date(expiryDate),
-        active: active === 'on'
-      });
-  
-      await coupon.save();
-      res.redirect('/coupons');
-    } catch (err) {
-      console.error('Error creating coupon:', err);
-      res.redirect('/coupons');
-    }
-  });
-  
-  // POST: Update existing coupon
-  app.post('/update/:id', async (req, res) => {
-    try {
-      const { code, discountType, discountValue, expiryDate, active } = req.body;
-      const couponId = req.params.id;
-  
-      if (!code || !discountType || !discountValue || !expiryDate) {
-        return res.redirect(`/edit/${couponId}`);
-      }
-  
-      const existingCoupon = await Coupon.findOne({ code, _id: { $ne: couponId } });
-      if (existingCoupon) {
-        return res.redirect(`/edit/${couponId}`);
-      }
-  
-      await Coupon.findByIdAndUpdate(couponId, {
-        code,
-        discountType,
-        discountValue: Number(discountValue),
-        expiryDate: new Date(expiryDate),
-        active: active === 'on'
-      }, { new: true });
-  
-      res.redirect('/coupons');
-    } catch (err) {
-      console.error('Error updating coupon:', err);
-      res.redirect(`/edit/${req.params.id}`);
-    }
-  });
-  
-  /////////////////////////////////////////////////////////////////////////////////////////////////////////
+});
 
-  // fetch cart product
+// GET: Form to add new coupon
+app.get('/add-coupon', (req, res) => {
+    res.render('coupon_form', {
+        coupons: [],
+        coupon: null
+    });
+});
+
+// GET: Form to edit existing coupon
+app.get('/edit/:id', async (req, res) => {
+    try {
+        const [coupons, coupon] = await Promise.all([
+            Coupon.find().sort({ createdAt: -1 }),
+            Coupon.findById(req.params.id)
+        ]);
+
+        if (!coupon) return res.redirect('/coupons');
+
+        res.render('coupon_form', {
+            coupons,
+            coupon
+        });
+    } catch (err) {
+        console.error('Error in edit route:', err);
+        res.redirect('/coupons');
+    }
+});
+
+// POST: Toggle coupon active status
+app.post('/toggle-active/:id', async (req, res) => {
+    try {
+        const coupon = await Coupon.findById(req.params.id);
+        if (!coupon) return res.redirect('/coupons');
+
+        coupon.active = !coupon.active;
+        await coupon.save();
+
+        res.redirect('/coupons');
+    } catch (err) {
+        console.error('Error toggling coupon status:', err);
+        res.redirect('/coupons');
+    }
+});
+
+// POST: Delete coupon
+app.post('/delete/:id', async (req, res) => {
+    try {
+        await Coupon.findByIdAndDelete(req.params.id);
+        res.redirect('/coupons');
+    } catch (err) {
+        console.error('Error deleting coupon:', err);
+        res.redirect('/coupons');
+    }
+});
+
+// POST: Create new coupon
+app.post('/create', async (req, res) => {
+    try {
+        const { code, discountType, discountValue, expiryDate, active } = req.body;
+
+        if (!code || !discountType || !discountValue || !expiryDate) {
+            return res.redirect('/coupons');
+        }
+
+        const existingCoupon = await Coupon.findOne({ code });
+        if (existingCoupon) {
+            return res.redirect('/coupons');
+        }
+
+        const coupon = new Coupon({
+            code,
+            discountType,
+            discountValue: Number(discountValue),
+            expiryDate: new Date(expiryDate),
+            active: active === 'on'
+        });
+
+        await coupon.save();
+        res.redirect('/coupons');
+    } catch (err) {
+        console.error('Error creating coupon:', err);
+        res.redirect('/coupons');
+    }
+});
+
+// POST: Update existing coupon
+app.post('/update/:id', async (req, res) => {
+    try {
+        const { code, discountType, discountValue, expiryDate, active } = req.body;
+        const couponId = req.params.id;
+
+        if (!code || !discountType || !discountValue || !expiryDate) {
+            return res.redirect(`/edit/${couponId}`);
+        }
+
+        const existingCoupon = await Coupon.findOne({ code, _id: { $ne: couponId } });
+        if (existingCoupon) {
+            return res.redirect(`/edit/${couponId}`);
+        }
+
+        await Coupon.findByIdAndUpdate(couponId, {
+            code,
+            discountType,
+            discountValue: Number(discountValue),
+            expiryDate: new Date(expiryDate),
+            active: active === 'on'
+        }, { new: true });
+
+        res.redirect('/coupons');
+    } catch (err) {
+        console.error('Error updating coupon:', err);
+        res.redirect(`/edit/${req.params.id}`);
+    }
+});
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// fetch cart product
 app.get('/cart:id', async (req, res) => {
     try {
         const cart = await Cart.find().populate('items.product'); // Fetch cart with product details
@@ -632,7 +659,7 @@ app.get('/cart:id', async (req, res) => {
 // Handle product addition with image uploads
 app.post('/add-product', upload.fields([
     { name: 'front_images', maxCount: 1 },  // Only one front image
-    {name:'back_image' , maxCount: 1},
+    { name: 'back_image', maxCount: 1 },
     { name: 'images', maxCount: 5 }  // Up to 5 other images
 ]), async (req, res) => {
     try {
@@ -655,11 +682,11 @@ app.post('/add-product', upload.fields([
                 return false;
             }
         };
-        
+
         const back_image = req.files.back_image && req.files.back_image[0]
             ? `data:image/jpeg;base64,${req.files.back_image[0].buffer.toString('base64')}`
             : null;
-        
+
         if (!validateBase64(back_image)) {
             throw new Error("Invalid back image data.");
         }
@@ -673,7 +700,7 @@ app.post('/add-product', upload.fields([
         }
 
         // Handle the other images
-        const images = req.files.images 
+        const images = req.files.images
             ? req.files.images.map(file => `data:image/jpeg;base64,${file.buffer.toString('base64')}`) // Add prefix
             : [];
 
@@ -763,7 +790,7 @@ app.post('/user/signup', async (req, res) => {
 app.post('/user/login', async (req, res) => {
     try {
         const { email, password } = req.body;
-        
+
         // Validate input
         if (!email || !password) {
             req.session.loginError = 'Please provide both email and password';
@@ -789,8 +816,8 @@ app.post('/user/login', async (req, res) => {
 
         // Set session and cookies
         req.session.userId = user._id.toString();
-        res.cookie('token', token, { 
-            httpOnly: true, 
+        res.cookie('token', token, {
+            httpOnly: true,
             maxAge: 3600000, // 1 hour
             secure: process.env.NODE_ENV === 'production'
         });
@@ -828,7 +855,7 @@ app.get('/logout', (req, res) => {
 app.post('/cart/apply-coupon', async (req, res) => {
     try {
         const { couponCode } = req.body;
-        
+
         // Validate input
         if (!couponCode || typeof couponCode !== 'string' || couponCode.trim() === '') {
             req.session.couponMessage = 'Please enter a valid coupon code';
@@ -843,7 +870,7 @@ app.post('/cart/apply-coupon', async (req, res) => {
         }
 
         // Find coupon (case insensitive search)
-        const coupon = await Coupon.findOne({ 
+        const coupon = await Coupon.findOne({
             code: { $regex: new RegExp(`^${couponCode.trim()}$`, 'i') },
             active: true,
             expiryDate: { $gte: new Date() }
@@ -851,7 +878,7 @@ app.post('/cart/apply-coupon', async (req, res) => {
 
         if (!coupon) {
             // More specific error messages
-            const expiredCoupon = await Coupon.findOne({ 
+            const expiredCoupon = await Coupon.findOne({
                 code: { $regex: new RegExp(`^${couponCode.trim()}$`, 'i') },
                 expiryDate: { $lt: new Date() }
             });
@@ -861,7 +888,7 @@ app.post('/cart/apply-coupon', async (req, res) => {
                 return res.redirect('/cart');
             }
 
-            const inactiveCoupon = await Coupon.findOne({ 
+            const inactiveCoupon = await Coupon.findOne({
                 code: { $regex: new RegExp(`^${couponCode.trim()}$`, 'i') },
                 active: false
             });
@@ -892,9 +919,9 @@ app.post('/cart/apply-coupon', async (req, res) => {
         }
 
         // Calculate discount
-        const subtotal = cart.items.reduce((total, item) => 
+        const subtotal = cart.items.reduce((total, item) =>
             total + (item.product.price * item.quantity), 0);
-        
+
         let discountAmount = 0;
         if (coupon.discountType === 'percentage') {
             discountAmount = subtotal * (coupon.discountValue / 100);
@@ -958,7 +985,7 @@ app.get('/cart', async (req, res) => {
     try {
         let user = { name: "Guest" };
         let userId = null;
-        
+
         // Authentication check
         if (req.user) {
             user = req.user;
@@ -982,7 +1009,7 @@ app.get('/cart', async (req, res) => {
         // Validate cart and coupon
         if (cart) {
             if (!cart.items) cart.items = [];
-            
+
             // Check applied coupon validity
             if (cart.appliedCoupon) {
                 const now = new Date();
@@ -1092,7 +1119,7 @@ app.post('/cart/remove-item', async (req, res) => {
 app.post('/place-order', async (req, res) => {  // Changed route name
     try {
         const userId = req.user?._id || req.session.userId;
-        
+
         if (!userId) {
             return res.status(401).json({ success: false, message: 'Not authenticated' });
         }
@@ -1112,9 +1139,9 @@ app.post('/place-order', async (req, res) => {  // Changed route name
             priceAtPurchase: item.product.price
         }));
 
-        const subtotal = cart.items.reduce((total, item) => 
+        const subtotal = cart.items.reduce((total, item) =>
             total + (item.product.price * item.quantity), 0);
-        
+
         const shippingFee = 5.00;
         const discountAmount = cart.discountAmount || 0;
         const totalAmount = subtotal - discountAmount + shippingFee;
@@ -1134,24 +1161,24 @@ app.post('/place-order', async (req, res) => {  // Changed route name
         });
 
         await newOrder.save();
-        
+
         // Clear the cart
         cart.items = [];
         cart.appliedCoupon = null;
         cart.discountAmount = 0;
         await cart.save();
 
-        res.json({ 
-            success: true, 
+        res.json({
+            success: true,
             orderId: newOrder._id,
-            message: 'Order created successfully' 
+            message: 'Order created successfully'
         });
 
     } catch (error) {
         console.error('Error creating order:', error);
-        res.status(500).json({ 
-            success: false, 
-            message: 'Failed to create order' 
+        res.status(500).json({
+            success: false,
+            message: 'Failed to create order'
         });
     }
 });
@@ -1162,14 +1189,14 @@ app.get('/confirmation/:id', async (req, res) => {
         const order = await Order.findById(req.params.id)
             .populate('user', 'name email')
             .populate('items.product', 'name price');
-            
+
         if (!order) {
             return res.status(404).send('Order not found');
         }
-        
-        res.render('order-confirmation', { 
+
+        res.render('order-confirmation', {
             user: req.user || { name: 'Guest' },
-            order 
+            order
         });
     } catch (error) {
         console.error('Error fetching order:', error);
@@ -1294,12 +1321,12 @@ app.get('/show-design', async (req, res) => {
         console.error("Error fetching designs:", error);
         res.status(500).send('Error fetching designs');
     }
-}); 
+});
 
 // Route to display reset password form
 app.get('/reset-password/:id', async (req, res) => {
     const { id } = req.params;
-  
+
     try {
         // Find the user by their ID
         const user = await User.findById(id);
@@ -1307,7 +1334,7 @@ app.get('/reset-password/:id', async (req, res) => {
         if (!user) {
             return res.status(400).send('Invalid or expired reset token');
         }
-  
+
         // Token is valid, render the reset password form with userId and token
         res.render('reset_password', {
             userId: user._id,
@@ -1355,10 +1382,10 @@ app.post('/reset-password-submit', async (req, res) => {
 });
 
 
-  
-  
-  // Route to send reset link (via email)
-  app.post('/reset-password', async (req, res) => {
+
+
+// Route to send reset link (via email)
+app.post('/reset-password', async (req, res) => {
     const { email } = req.body;
 
     try {
@@ -1419,9 +1446,9 @@ app.post('/reset-password-submit', async (req, res) => {
     }
 });
 
-  
 
-app.get('/forget-password', (req,res)=>{
+
+app.get('/forget-password', (req, res) => {
     res.render('forget_password', { message: "No user found with that email." });
 
 });
@@ -1433,10 +1460,10 @@ app.get('/contact', (req, res) => {
 app.get('/about', (req, res) => {
     res.render('aboutUs');
 });
-app.get('/terms-and-condition', (req,res)=>{
+app.get('/terms-and-condition', (req, res) => {
     res.render('termsandcondition');
 })
-app.get('/privacy_policy', (req,res)=>{
+app.get('/privacy_policy', (req, res) => {
     res.render('./privacypolicy');
 })
 

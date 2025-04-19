@@ -1276,6 +1276,22 @@ app.get('/orders/:id', async (req, res) => {
         res.status(500).render('error', { message: 'Server error fetching order details' });
     }
 });
+// Get specific order details (without user checking)
+app.get('/user-orders/:id', async (req, res) => {
+    try {
+        const order = await Order.findById(req.params.id)
+            .populate('items.product', 'name images price description');
+
+        if (!order) {
+            return res.status(404).render('error', { message: 'Order not found' });
+        }
+
+        res.render('user-order_details', { order });
+    } catch (error) {
+        console.error('Error fetching order details:', error);
+        res.status(500).render('error', { message: 'Server error fetching order details' });
+    }
+});
 
 
 app.post('/contact', async (req, res) => {

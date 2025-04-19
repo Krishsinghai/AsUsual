@@ -18,7 +18,7 @@ dotenv.config();
 
 // Initialize Express app
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 8000;
 
 // Connect to MongoDB Atlas
 mongoose.connect(process.env.MONGO_URI, {
@@ -1469,5 +1469,5 @@ app.get('/privacy_policy', (req, res) => {
 
 // Start the server on the specified port
 app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
+    console.log(`Server is running on ${PORT}`);
 });

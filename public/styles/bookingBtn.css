@@ -368,14 +368,7 @@
   *:after {
     box-sizing: inherit;
   }
-  body {
-    min-height: 100vh;
-    font-family: Roboto, Arial;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background: #e4ecfa;
-  }
+
   body .dribbble {
     position: fixed;
     display: block;

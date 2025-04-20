@@ -29,6 +29,21 @@ mongoose.connect(process.env.MONGO_URI, {
     .catch(err => console.error('MongoDB connection error:', err));
 
 
+
+    
+// Middleware to attach user to both req and views
+const attachUser = async (req, res, next) => {
+    try {
+        const userId = req.session.userId || req.cookies.userId;
+        req.user = userId ? await User.findById(userId, 'name email phone createdAt') : null;
+        res.locals.user = req.user; // This makes user available in all views
+        next();
+    } catch (error) {
+        console.error('User attachment error:', error);
+        next(error);
+    }
+};
+
 // Middleware
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
@@ -44,6 +59,7 @@ app.use(session({
 app.use(express.json()); // For JSON bodies
 app.use(express.urlencoded({ extended: true })); // For form data
 
+app.use(attachUser);
 const otpCache = {};
 
 function generateOTP() {
@@ -292,7 +308,7 @@ app.get('/admindashboard', async (req, res) => {
 app.post('/edit_product/:id', async (req, res) => {
     const { id } = req.params;
     await Product.findByIdAndUpdate(id, req.body, { new: true });
-    res.redirect('/products');
+    res.redirect('/Products');
 });
 
 
@@ -326,14 +342,6 @@ app.get('/', async (req, res) => {
         // Fetch products sorted by creation date
         const Products = await Product.find().sort({ createdAt: 'desc' });
 
-        // Get user ID from session or cookie
-        const userId = req.session.userId || req.cookies.userId;
-        let user = null;
-
-        if (userId) {
-            user = await User.findById(userId, 'name email phone createdAt');
-        }
-
         // Fetch the single document containing the poster images, headings, and titles
         const poster = await Poster.findOne({});
         const posters = poster ? poster.image : []; // Use an empty array if no posters are found
@@ -341,7 +349,7 @@ app.get('/', async (req, res) => {
         const titles = poster ? poster.Title : []; // Use an empty array if no titles are found
 
         // Render the index.ejs template with Products, user, posters, headings, and titles
-        res.render('index', { Products, user, posters, headings, titles });
+        res.render('index', { Products, posters, headings, titles });
     } catch (err) {
         console.error(err);
         res.status(500).send('Server Error');
@@ -648,7 +656,7 @@ app.post('/update/:id', async (req, res) => {
 app.get('/cart:id', async (req, res) => {
     try {
         const cart = await Cart.find().populate('items.product'); // Fetch cart with product details
-        res.render('cart', { cart }); // Pass cart data to EJS
+        res.render('cart', { cart }, { user: req.user }); // Pass cart data to EJS
     } catch (error) {
         res.status(500).send('Error fetching cart data');
     }
@@ -722,7 +730,7 @@ app.post('/add-product', upload.fields([
 
         await newProduct.save();
         console.log('Product saved to database:', newProduct);
-        res.status(201).redirect('/products');
+        res.status(201).redirect('/Products');
     } catch (error) {
         console.error('Error adding product:', error);
         res.status(500).send('Error adding product: ' + error.message);
@@ -1237,25 +1245,30 @@ app.get('/orders', async (req, res) => {
 // GET: All Orders for a Logged-In User
 app.get('/all-orders', async (req, res) => {
     try {
-        const userId = req.session.userId || req.cookies.userId;
-
-        if (!userId) {
+        // No need to check userId manually - attachUser middleware already did this
+        if (!req.user) {
             return res.redirect('/signup');
         }
 
-        const orders = await Order.find({ user: userId })
+        const orders = await Order.find({ user: req.user._id })
             .populate({
                 path: 'items.product',
                 select: 'name images price'
             })
-            .sort({ createdAt: -1 });
+            .sort({ createdAt: -1 })
+            .lean(); // Add lean() for better performance
 
-        res.render('allOrders', {
-            orders
+        res.render('allOrders', { 
+            orders,
+            // No need to explicitly pass user - middleware handles it via res.locals
         });
     } catch (error) {
-        console.error(error);
-        res.status(500).send('Server Error');
+        console.error('Order fetch error:', error);
+        req.flash('error', 'Failed to load orders');
+        res.status(500).render('error', { 
+            message: 'Failed to load your orders',
+            error: process.env.NODE_ENV === 'development' ? error : {}
+        });
     }
 });
 
@@ -1286,7 +1299,7 @@ app.get('/user-orders/:id', async (req, res) => {
             return res.status(404).render('error', { message: 'Order not found' });
         }
 
-        res.render('user-order_details', { order });
+        res.render('user-order_details', { order }, { user: req.user });
     } catch (error) {
         console.error('Error fetching order details:', error);
         res.status(500).render('error', { message: 'Server error fetching order details' });
@@ -1469,19 +1482,34 @@ app.get('/forget-password', (req, res) => {
 
 });
 
-app.get('/contact', (req, res) => {
-    res.render('contactUs');
-});
-
+// Simplified routes
 app.get('/about', (req, res) => {
     res.render('aboutUs');
 });
 app.get('/terms-and-condition', (req, res) => {
     res.render('termsandcondition');
-})
-app.get('/privacy_policy', (req, res) => {
-    res.render('./privacypolicy');
-})
+});
+
+app.get('/privacy_policy',(req, res) => {
+    res.render('privacypolicy');
+});
+
+app.get('/contact', (req, res) => {
+    res.render('contactUs');
+});
+
+
+
+// update order status
+app.post('/orders/update-status/:id', async (req, res) => {
+    try {
+        await Order.findByIdAndUpdate(req.params.id, { status: req.body.status });
+        res.redirect('/orders');
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Update failed');
+    }
+});
 
 // Start the server on the specified port
 app.listen(PORT, () => {

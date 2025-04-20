@@ -454,74 +454,13 @@ app.get('/Products', async (req, res) => {
                 id: p._id.toString() // Ensure id field exists
             }))
         });
+        
     } catch (error) {
         console.error('Error fetching products:', error);
         res.status(500).send('Error fetching products');
     }
 });
 
-// Filter products route
-app.post('/products/filter', async (req, res) => {
-    const { price, sizes, colors, sortOrder, categories } = req.body;
-
-    let query = {};
-
-    // Price filter
-    if (price) {
-        query.price = { $lte: parseInt(price) };
-    }
-
-    // Size filter - check inventory for selected sizes
-    if (sizes && sizes.length > 0) {
-        query.$or = sizes.map(size => ({ [`sizes.${size}`]: { $gt: 0 } }));
-    }
-
-    // Case-insensitive color filter
-    if (colors && colors.length > 0) {
-        query.color = {
-            $in: colors.map(color => new RegExp(`^${color}$`, 'i'))
-        };
-    }
-
-    // Case-insensitive category filter
-    if (categories && categories.length > 0) {
-        query.category = {
-            $in: categories.map(cat => new RegExp(`^${cat}$`, 'i'))
-        };
-    }
-
-    try {
-        // Fetch products with filtering
-        let products = await Product.find(query);
-
-        // Sort by price
-        if (sortOrder === 'asc') {
-            products.sort((a, b) => a.price - b.price);
-        } else if (sortOrder === 'desc') {
-            products.sort((a, b) => b.price - a.price);
-        }
-
-        res.json(products);
-    } catch (error) {
-        console.error('Error filtering products:', error);
-        res.status(500).json({ error: 'Internal Server Error' });
-    }
-});
-// product_details
-// app.get('/product_details/:id', (req, res) => {
-//     const productId = req.params.id;
-//     const product = products.find(p => p.id == productId);
-
-//     if (!product) {
-//         return res.status(404).send("Product not found");
-//     }
-//     console.log(product)
-
-//     res.render('product_detail', { product });
-// });
-
-
-// GET: Main coupons page with list and form
 app.get('/coupons', async (req, res) => {
     try {
         const coupons = await Coupon.find().sort({ createdAt: -1 });

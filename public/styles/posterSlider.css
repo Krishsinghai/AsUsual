@@ -448,3 +448,7 @@ body {
     border-color: rgba(255, 255, 255, 0.5);
   }
 }
+
+.swiper-horizontal>.swiper-pagination-bullets, .swiper-pagination-bullets.swiper-pagination-horizontal, .swiper-pagination-custom, .swiper-pagination-fraction{
+  display: none;
+}

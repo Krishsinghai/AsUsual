@@ -1417,5 +1417,5 @@ app.post('/orders/update-status/:id', async (req, res) => {
 
 // Start the server on the specified port
 app.listen(PORT, () => {
-    console.log(`Server is running on localhost:${PORT}`);
+    console.log(`Server is running on http://localhost:${PORT}`);
 });

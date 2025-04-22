@@ -359,10 +359,11 @@ app.get('/edit-product', async (req, res) => {
     const products = await Product.find({}, 'name price front_image category brand sizes description');
     const updatedProducts = products.map(product => ({
         ...product._doc,
-        imageBase64: product.front_image.length > 0 ? `data:image/jpeg;base64,${product.front_image[0].toString('base64')}` : null
+        image: product.front_image.length > 0 ? product.front_image[0] : null
     }));
     res.render('edit_product', { products: updatedProducts });
 });
+
 
 
 
@@ -385,7 +386,7 @@ app.get('/', async (req, res) => {
         res.status(500).send('Server Error');
     }
 });
-app.get('')
+
 
 app.get('/add-product', (req, res) => {
     res.render('add_product');
@@ -673,12 +674,12 @@ app.post('/add-product',
   
         await product.save();
         console.log()
-        
-        res.status(201).json({ 
-          success: true,
-          message: 'Product added successfully',
-          product 
-        });
+        return res.send(`
+            <script>
+              
+              window.location.href = '/add-product';
+            </script>
+        `);
       } catch (error) {
         console.error('Error adding product:', error);
         res.status(500).json({ 

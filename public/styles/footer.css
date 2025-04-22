@@ -11,7 +11,7 @@ body {
   padding-top: 300px;
 } */
 
-.container {
+.container .footer-container{
   width: 100%;
   max-width: 1600px;
   margin: 0 auto;
@@ -30,6 +30,7 @@ body {
   /* padding: 3rem 0; */
   color: #fff;
   background: #000;
+  width: 100%;
   /* margin-top: auto; */
 }
 .footer__columns {
@@ -199,7 +200,7 @@ body {
 
 @media (max-width: 768px) {
   /* General adjustments */
-  .container {
+  .container .footer-container {
     max-width: 100%;
     padding: 0 1rem;
   }

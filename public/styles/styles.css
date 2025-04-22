@@ -302,6 +302,7 @@ body {
   white-space: nowrap;
   overflow: hidden;
   position: relative;
+  width: 100%;
 
   font-family: "Dancing Script", cursive;
   font-optical-sizing: auto;

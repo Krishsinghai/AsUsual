@@ -2,7 +2,7 @@
 
 :root {
   --primary-color: #860505;
-  --secondary-color: #222;
+  --secondarys-color: #222;
   --background-color: #121212;
   --text-color: #fff;
   --light-text-color: #bbb;
@@ -23,22 +23,22 @@ body {
   align-items: center;
   flex-direction: column;
   font-family: "Montserrat", sans-serif;
-  height: 100vh;
+  height: 100%;
   /* margin: -20px 0 50px; */
 }
 
-h1 {
+.form-container h1 , .overlay-container h1 {
   font-weight: bold;
   margin: 0;
   color: var(--text-color);
 }
 
-h2 {
+.form-container h2 ,.overlay-container h1 {
   text-align: center;
   color: var(--text-color);
 }
 
-p {
+.form-container p , .overlay-container p{
   font-size: 14px;
   font-weight: 100;
   line-height: 20px;
@@ -46,19 +46,19 @@ p {
   margin: 20px 0 30px;
 }
 
-span {
+.form-container span {
   font-size: 12px;
   color: var(--light-text-color);
 }
 
-a {
+.form-container a {
   color: #ddd;
   font-size: 14px;
   text-decoration: none;
   margin: 15px 0;
 }
 
-button {
+.form-container button ,.overlay-container button{
   border-radius: 20px;
   border: 1px solid var(--primary-color);
   background-color: var(--primary-color);
@@ -72,25 +72,25 @@ button {
   transition: transform 80ms ease-in, background 0.3s ease;
 }
 
-button:hover {
+.form-container button:hover {
   background-color: var(--button-hover);
 }
 
-button:active {
+.form-container button:active {
   transform: scale(0.95);
 }
 
-button:focus {
+.form-container button:focus {
   outline: none;
 }
 
-button.ghost {
+.form-container button.ghost ,.overlay-container button.ghost {
   background-color: transparent;
   border-color: var(--text-color);
 }
 
-form {
-  background-color: var(--secondary-color);
+.form-container form {
+  background-color: var(--secondarys-color);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -102,7 +102,7 @@ form {
   box-shadow: 0px 4px 10px var(--shadow-color);
 }
 
-input {
+.form-container input {
   background-color: var(--input-bg);
   border: none;
   color: var(--text-color);

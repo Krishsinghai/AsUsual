@@ -30,7 +30,7 @@ mongoose.connect(process.env.MONGO_URI, {
 
 
 
-    
+
 // Middleware to attach user to both req and views
 const attachUser = async (req, res, next) => {
     try {
@@ -190,7 +190,7 @@ app.post('/admin/signup', async (req, res) => {
         // Create a new user in the database
         const admin = await Admin.create({ name, email, password: hashedPassword });
 
-        console.log(admin);
+        // console.log(admin);
         res.redirect('admin_login');
 
     } catch (error) {
@@ -242,7 +242,7 @@ app.post('/admin/edit-poster', upload.fields([
             return res.status(400).json({ message: 'No files uploaded' });
         }
 
-        // Convert images to base64
+        // Convert images to base64u
         const base64Images = [];
         const headings = [];
         const titles = [];
@@ -454,7 +454,7 @@ app.get('/Products', async (req, res) => {
                 id: p._id.toString() // Ensure id field exists
             }))
         });
-        
+
     } catch (error) {
         console.error('Error fetching products:', error);
         res.status(500).send('Error fetching products');
@@ -601,17 +601,18 @@ app.get('/cart:id', async (req, res) => {
     }
 });
 
+const { uploads } = require('./config/cloudinary');
 
-
-// Handle product addition with image uploads
-app.post('/add-product', upload.fields([
-    { name: 'front_images', maxCount: 1 },  // Only one front image
-    { name: 'back_image', maxCount: 1 },
-    { name: 'images', maxCount: 5 }  // Up to 5 other images
-]), async (req, res) => {
-    try {
-        // Destructure the body fields
+app.post('/add-product', 
+    uploads.fields([
+      { name: 'front_images', maxCount: 1 },
+      { name: 'back_image', maxCount: 1 },
+      { name: 'images', maxCount: 5 }
+    ]),
+    async (req, res) => {
+      try {
         const { name, description, price, brand, color, category } = req.body;
+
         const sizes = {
             xsmall: parseInt(req.body.sizes?.xsmall) || 0,
             small: parseInt(req.body.sizes?.small) || 0,
@@ -619,62 +620,46 @@ app.post('/add-product', upload.fields([
             large: parseInt(req.body.sizes?.large) || 0,
             xlarge: parseInt(req.body.sizes?.xlarge) || 0
         };
-
-        const validateBase64 = (base64) => {
-            try {
-                // Check if the base64 string is valid
-                Buffer.from(base64, 'base64');
-                return true;
-            } catch (error) {
-                return false;
-            }
-        };
-
-        const back_image = req.files.back_image && req.files.back_image[0]
-            ? `data:image/jpeg;base64,${req.files.back_image[0].buffer.toString('base64')}`
-            : null;
-
-        if (!validateBase64(back_image)) {
-            throw new Error("Invalid back image data.");
-        }
-        // Check if front_images exists and if not, throw an error
-        const front_image = req.files.front_images && req.files.front_images[0]
-            ? `data:image/jpeg;base64,${req.files.front_images[0].buffer.toString('base64')}` // Add prefix
-            : null;
-
-        if (!front_image) {
-            throw new Error("Front image is required.");
-        }
-
-        // Handle the other images
-        const images = req.files.images
-            ? req.files.images.map(file => `data:image/jpeg;base64,${file.buffer.toString('base64')}`) // Add prefix
-            : [];
-
-        // console.log('Received data:', { name, description, price, brand, color, category, sizes, front_image, images });
-
-        // Create and save the new product
-        const newProduct = new Product({
-            name,
-            description,
-            price,
-            brand: brand || "AsUsual",
-            color,
-            category,
-            sizes,
-            back_image,
-            front_image,  // Save the front image as base64 with prefix
-            images  // Save other images as base64 with prefix
+        
+        // Get uploaded file URLs from Cloudinary
+        const frontImage = req.files['front_images'][0];
+        const backImage = req.files['back_image'][0];
+        const additionalImages = req.files['images'] || [];
+  
+        // Create product with Cloudinary URLs
+        const product = new Product({
+          name,
+          description,
+          sizes: JSON.parse(sizes),
+          price,
+          brand,
+          color,
+          category,
+          front_images: frontImage.path, // Cloudinary URL
+          back_image: backImage.path,    // Cloudinary URL
+          images: additionalImages.map(img => img.path) // Array of Cloudinary URLs
         });
-
-        await newProduct.save();
-        console.log('Product saved to database:', newProduct);
-        res.status(201).redirect('/Products');
-    } catch (error) {
+  
+        await product.save();
+        console.log()
+        
+        res.status(201).json({ 
+          success: true,
+          message: 'Product added successfully',
+          product 
+        });
+      } catch (error) {
         console.error('Error adding product:', error);
-        res.status(500).send('Error adding product: ' + error.message);
+        res.status(500).json({ 
+          success: false,
+          message: 'Failed to add product',
+          error: error.message 
+        });
+      }
     }
-});
+  );
+  
+
 
 
 
@@ -724,7 +709,7 @@ app.post('/user/signup', async (req, res) => {
         // Create a new user in the database
         const user = await User.create({ name, email, phone, password: hashedPassword });
 
-        console.log(user);
+        // console.log(user);
         res.redirect('/');
 
     } catch (error) {
@@ -1197,14 +1182,14 @@ app.get('/all-orders', async (req, res) => {
             .sort({ createdAt: -1 })
             .lean(); // Add lean() for better performance
 
-        res.render('allOrders', { 
+        res.render('allOrders', {
             orders,
             // No need to explicitly pass user - middleware handles it via res.locals
         });
     } catch (error) {
         console.error('Order fetch error:', error);
         req.flash('error', 'Failed to load orders');
-        res.status(500).render('error', { 
+        res.status(500).render('error', {
             message: 'Failed to load your orders',
             error: process.env.NODE_ENV === 'development' ? error : {}
         });
@@ -1274,22 +1259,6 @@ app.get('/admin/contacts', async (req, res) => {
     }
 });
 
-
-app.get('/show-design', async (req, res) => {
-    try {
-        // Fetch all designs from the database
-        const designs = await CustomTshirt.find();
-
-        // Log the designs for debugging purposes
-        // console.log('Designs:', designs);
-
-        // Render the 'designs' view and pass the data
-        res.render('designs', { designs: designs });
-    } catch (error) {
-        console.error("Error fetching designs:", error);
-        res.status(500).send('Error fetching designs');
-    }
-});
 
 // Route to display reset password form
 app.get('/reset-password/:id', async (req, res) => {
@@ -1429,7 +1398,7 @@ app.get('/terms-and-condition', (req, res) => {
     res.render('termsandcondition');
 });
 
-app.get('/privacy_policy',(req, res) => {
+app.get('/privacy_policy', (req, res) => {
     res.render('privacypolicy');
 });
 

@@ -13,10 +13,10 @@
             medium: { type: Number, default: 0 },
             large: { type: Number, default: 0 },
             xlarge:{type: Number, default: 0 }
-        },
+        },  
         back_image:{ type: String, required:true},
         front_image:{ type: String, required: true}, 
-        images: [String], // Array of image URLs/Base64 just for internal 
+        images: [String], 
         createdAt: { type: Date, default: Date.now } // Stores the product's creation date
     });
 

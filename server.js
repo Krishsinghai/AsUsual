@@ -612,6 +612,7 @@ app.post('/add-product',
     async (req, res) => {
       try {
         const { name, description, price, brand, color, category } = req.body;
+        // console.log("the data is:",req.body,req.files)
 
         const sizes = {
             xsmall: parseInt(req.body.sizes?.xsmall) || 0,
@@ -630,12 +631,12 @@ app.post('/add-product',
         const product = new Product({
           name,
           description,
-          sizes: JSON.parse(sizes),
+          sizes,
           price,
           brand,
           color,
           category,
-          front_images: frontImage.path, // Cloudinary URL
+          front_image: frontImage.path,  // Cloudinary URL
           back_image: backImage.path,    // Cloudinary URL
           images: additionalImages.map(img => img.path) // Array of Cloudinary URLs
         });
@@ -659,11 +660,6 @@ app.post('/add-product',
     }
   );
   
-
-
-
-
-
 // Handle signup 
 app.get('/signup', (req, res) => {
     res.render('signup');

@@ -7,14 +7,17 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const cookieParser = require('cookie-parser');
 const randomstring = require('randomstring')
+const cloudinary = require('cloudinary').v2;
 const nodemailer = require('nodemailer');
 const session = require('express-session');
 const dotenv = require('dotenv');
 const crypto = require('crypto');
 const MongoStore = require('connect-mongo');
+const { uploads } = require('./config/cloudinary');
 
-// Load environment variables
-dotenv.config();
+require('dotenv').config();     
+
+
 
 // Initialize Express app
 const app = express();
@@ -229,52 +232,52 @@ app.post('/admin/login', async (req, res) => {
 });
 
 
-app.post('/admin/edit-poster', upload.fields([
+
+
+app.post('/admin/edit-poster', uploads.fields([
     { name: 'poster1', maxCount: 1 },
     { name: 'poster2', maxCount: 1 },
     { name: 'poster3', maxCount: 1 }
-]), async (req, res) => {
+  ]), async (req, res) => {
     try {
-        const files = req.files;
-
-        // Check if files were uploaded
-        if (!files || Object.keys(files).length === 0) {
-            return res.status(400).json({ message: 'No files uploaded' });
+      const files = req.files;
+      const imageUrls = [];
+      const headings = [];
+      const titles = [];
+  
+      for (let i = 1; i <= 3; i++) {
+        const field = `poster${i}`;
+        if (files[field]) {
+          const file = files[field][0];
+  
+          imageUrls.push(file.path); // Already a Cloudinary URL
+          headings.push(req.body[`Heading${i}`] || '');
+          titles.push(req.body[`Title${i}`] || '');
         }
-
-        // Convert images to base64u
-        const base64Images = [];
-        const headings = [];
-        const titles = [];
-
-        for (let i = 1; i <= 3; i++) {
-            if (files[`poster${i}`]) {
-                const file = files[`poster${i}`][0];
-                const base64Image = file.buffer.toString('base64'); // Convert Buffer to base64
-                base64Images.push(base64Image);
-                headings.push(req.body[`Heading${i}`]);
-                titles.push(req.body[`Title${i}`]);
-            }
-        }
-
-        // Update the single document (or create it if it doesn't exist)
-        const filter = {}; // Empty filter to match the first (and only) document
-        const update = {
-            image: base64Images,
-            Heading: headings,
-            Title: titles
-        }; // Data to update
-        const options = { upsert: true, new: true, setDefaultsOnInsert: true }; // Options
-
-        const poster = await Poster.findOneAndUpdate(filter, update, options);
-
-        res.status(201).json({ message: 'Images uploaded successfully', poster });
+      }
+  
+      const update = {
+        image: imageUrls,
+        Heading: headings,
+        Title: titles
+      };
+  
+      const poster = await Poster.findOneAndUpdate({}, update, {
+        upsert: true,
+        new: true,
+        setDefaultsOnInsert: true
+      });
+      return res.send(`
+        <script>
+          alert('Poster updated successfully');
+          window.location.href = '/';
+        </script>
+    `);
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Internal server error' });
-    }
-});
+      console.error('Cloudinary Upload Error:', error);
 
+    }
+  });
 
 
 // Logout route
@@ -305,11 +308,38 @@ app.get('/admindashboard', async (req, res) => {
 
 //##################################### edit product ##################################################
 // Update product by ID (edit_product route)
-app.post('/edit_product/:id', async (req, res) => {
-    const { id } = req.params;
-    await Product.findByIdAndUpdate(id, req.body, { new: true });
-    res.redirect('/Products');
-});
+// Then your routes
+app.post('/edit-product/:id',
+    uploads.fields([
+      { name: 'front_image', maxCount: 1 },
+      { name: 'back_image', maxCount: 1 },
+      { name: 'images', maxCount: 5 }
+    ]),
+    async (req, res) => {
+      const { id } = req.params;
+  
+      try {
+        const updateData = req.body;
+  
+        if (req.files['front_image']) {
+          updateData.front_image = req.files['front_image'][0].path;
+        }
+        if (req.files['back_image']) {
+          updateData.back_image = req.files['back_image'][0].path;
+        }
+        if (req.files['images']) {
+          updateData.images = req.files['images'].map(img => img.path);
+        }
+  
+        await Product.findByIdAndUpdate(id, updateData, { new: true });
+  
+        res.redirect('/Products');
+      } catch (error) {
+        console.error('Error updating product:', error);
+        res.status(500).json({ success: false, error: error.message });
+      }
+    }
+  );  
 
 
 
@@ -601,7 +631,7 @@ app.get('/cart:id', async (req, res) => {
     }
 });
 
-const { uploads } = require('./config/cloudinary');
+
 
 app.post('/add-product', 
     uploads.fields([

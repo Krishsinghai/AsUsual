@@ -1137,7 +1137,6 @@ app.post('/place-order', async (req, res) => {  // Changed route name
         console.error('Error creating order:', error);
         res.status(500).json({
             success: false,
-            message: 'Failed to create order'
         });
     }
 });

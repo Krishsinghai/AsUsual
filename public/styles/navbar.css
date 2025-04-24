@@ -1,11 +1,11 @@
 :root {
-  --primary-color: #860505;;
+  --primary-color: #860505;
   --secondary-color: yellow;
   --glass-bg: black;
   --white: #fff;
   --shadow-color: rgba(0, 0, 0, 0.5);
   --blur-effect: blur(8px);
-  --btn-hover-bg: #860505;;
+  --btn-hover-bg: #860505;
   --btn-shadow: rgba(202, 65, 15, 0.5);
 }
 
@@ -22,15 +22,7 @@
   transition: all 0.3s ease-in-out;
   animation: fadeInDown 0.6s ease-in-out;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-
-
-
-  
-
-  /* font-family: "Dancing Script", cursive;
-  font-optical-sizing: auto;
-  font-weight: 600;
-  font-style: normal; */
+  width: 100%;
 }
 
 /* Container Layout */
@@ -67,7 +59,7 @@
 }
 
 /* Navbar Links */
-.As-nav-links, 
+.As-nav-links,
 .AS-nav-btn {
   list-style: none;
   display: flex;
@@ -94,7 +86,11 @@
   bottom: -5px;
   width: 0;
   height: 2px;
-  background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+  background: linear-gradient(
+    to right,
+    var(--primary-color),
+    var(--secondary-color)
+  );
   transition: all 0.3s ease-in-out;
 }
 
@@ -193,15 +189,16 @@
     transform: translateY(-20px);
     transition: all 0.3s ease-in-out;
   }
-  .AS-nav-btn{
+  .AS-nav-btn {
     gap: 1rem;
   }
-  .AS-nav-btn li a span{
+  .AS-nav-btn li a span {
     display: none;
   }
   .AS-nav-btn li a {
     font-size: smaller;
-    padding: 10px }
+    padding: 10px;
+  }
 
   .As-nav-links.active {
     display: flex;
@@ -219,11 +216,11 @@
     font-size: 1.2rem;
     width: 100%;
   }
-  .As-logo a{
+  .As-logo a {
     position: relative;
     left: 0;
   }
-  .As-logo img{
+  .As-logo img {
     width: 80px;
   }
 }

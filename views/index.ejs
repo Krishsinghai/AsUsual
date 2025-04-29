@@ -74,13 +74,6 @@
         <!-- <div class="brand-name"><img
             src="assests/horizontalLogo-removebg-preview.png" alt="Logo"></div> -->
       </div>
-      <audio
-        id="background-sound"
-        src="/assests/sword-ninja.mp3"
-        autoplay
-        muted
-        loop
-      ></audio>
     </div>
 
     <!-- Homepage Content -->
@@ -199,10 +192,7 @@
               class="slider__images-item <%= index === 0 ? 'slider__images-item--active' : '' %>"
               data-id="<%= index + 1 %>"
             >
-              <img
-                src="<%= poster %>"
-                alt="Fashion Style <%= index + 1 %>"
-              />
+              <img src="<%= poster %>" alt="Fashion Style <%= index + 1 %>" />
             </div>
             <% }); %> <% } %>
           </div>
@@ -244,31 +234,24 @@
 
       <!-- this is the second section -->
       <div class="page2" id="page2">
-        <% for(let i=0; i <=3 ; i++) { %>
-        <div class="card">
-          <div class="imgBox">
-            <div class="front">
-              <img
-                src="<%= Products[i].front_image %>"
-                alt="<%= Products[i].name %>"
-              />
+        <% for(let i = 0; i < 6; i++) { %>
+          <div class="card" data-url="/product_details/<%= Products[i]._id %>">
+            <div class="imgBox">
+              <div class="front">
+                <img src="<%= Products[i].front_image %>" alt="<%= Products[i].name %>" />
+              </div>
+              <div class="back">
+                <img src="<%= Products[i].back_image %>" alt="<%= Products[i].name %>" />
+              </div>
             </div>
-            <div class="back">
-              <img
-                src="<%= Products[i].back_image %>"
-                alt="<%= Products[i].name %>"
-              />
+            <div class="contentBox">
+              <h3><%= Products[i].name %></h3>
+              <h2 class="price"><small>₹<%= Products[i].price %></small></h2>
+              <a href="/product_details/<%= Products[i]._id %>" class="buy">Buy Now</a>
             </div>
           </div>
-          <div class="contentBox">
-            <h3><%= Products[i].name %></h3>
-            <h2 class="price"><small>₹<%= Products[i].price %></small></h2>
-            <a href="/product_details/<%= Products[i]._id %>" class="buy"
-              >Buy Now</a
-            >
-          </div>
-        </div>
         <% } %>
+        
       </div>
 
       <!-- this is the third section -->
@@ -480,33 +463,62 @@
 
       <div class="page4" id="page4">
         <div class="scroller">
-          <% for(let i=0; i < 6; i++) { %>
-          <div class="card">
-            <div class="imgBox">
-              <div class="front">
-                <img
-                  src="<%= Products[i].front_image %>"
-                  alt="<%= Products[i].name %>"
-                />
+          <% for(let i = 0; i < 6; i++) { %>
+            <div class="card" data-url="/product_details/<%= Products[i]._id %>">
+              <div class="imgBox">
+                <div class="front">
+                  <img src="<%= Products[i].front_image %>" alt="<%= Products[i].name %>" />
+                </div>
+                <div class="back">
+                  <img src="<%= Products[i].back_image %>" alt="<%= Products[i].name %>" />
+                </div>
               </div>
-              <div class="back">
-                <img
-                  src="<%= Products[i].back_image %>"
-                  alt="<%= Products[i].name %>"
-                />
+              <div class="contentBox">
+                <h3><%= Products[i].name %></h3>
+                <h2 class="price"><small>₹<%= Products[i].price %></small></h2>
+                <a href="/product_details/<%= Products[i]._id %>" class="buy">Buy Now</a>
               </div>
             </div>
-            <div class="contentBox">
-              <h3><%= Products[i].name %></h3>
-              <h2 class="price"><small>₹<%= Products[i].price %></small></h2>
-              <a href="/product_details/<%= Products[i]._id %>" class="buy"
-                >Buy Now</a
-              >
-            </div>
-          </div>
           <% } %>
+          
         </div>
       </div>
+      <style>
+        .card.flipped .imgBox {
+          transform: rotateY(180deg);
+        }
+      </style>
+      <script>
+        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
+        if (isMobile) {
+          document.querySelectorAll(".card").forEach((card) => {
+            let flipped = false;
+
+            card.addEventListener("click", (e) => {
+              // Prevent "Buy Now" from being blocked
+              if (e.target.classList.contains("buy")) return;
+
+              if (!flipped) {
+                card.classList.add("flipped");
+                flipped = true;
+
+                // Optional: Flip back after 1.5s
+                setTimeout(() => {
+                  card.classList.remove("flipped");
+                  flipped = false;
+                }, 1000);
+              } else {
+                // Second tap navigates
+                const url = card.getAttribute("data-url");
+                console.log(url);
+                window.location.href = url;
+              }
+            });
+          });
+        }
+      </script>
+
       <!-- Testimonial Section -->
       <div class="page5" id="page5">
         <section class="bg-black text-white py-16 px-4 sm:px-6 lg:px-20">
@@ -740,7 +752,7 @@
       </style>
 
       <!-- footer  -->
-     
+
       <footer class="footer">
         <div class="footer__parralax">
           <div class="footer__parralax-trees"></div>
@@ -758,17 +770,16 @@
               <nav class="footer__nav">
                 <ul class="footer__nav-list">
                   <li class="footer__nav-item">
-                    <a href="/about" class="/about">
-                      About Us
-                    </a>
+                    <a href="/about" class="/about"> About Us </a>
                   </li>
                   <li class="footer__nav-item">
-                    <a href="/contact" class="/contact">
-                      Contact Us
-                    </a>
+                    <a href="/contact" class="/contact"> Contact Us </a>
                   </li>
                   <li class="footer__nav-item">
-                    <a href="/Terms-and-conditions" class="/Terms-and-conditions">
+                    <a
+                      href="/Terms-and-conditions"
+                      class="/Terms-and-conditions"
+                    >
                       Terms & Conditions
                     </a>
                   </li>
@@ -777,7 +788,6 @@
                       Privacy Policy
                     </a>
                   </li>
-
                 </ul>
               </nav>
             </div>
@@ -795,15 +805,17 @@
                   <li class="footer__nav-item">
                     <a href class="footer__nav-link">
                       <i data-feather="facebook"></i><span>Facebook</span>
-
                     </a>
                   </li>
                   <li class="footer__nav-item">
-                    <a href="https://www.instagram.com/as_usual.clothing/"
-                      class="footer__nav-link">
+                    <a
+                      href="https://www.instagram.com/as_usual.clothing/"
+                      class="footer__nav-link"
+                    >
                       <i
-                        data-feather="https://www.instagram.com/as_usual.clothing/"></i><span>Instagram</span>
-
+                        data-feather="https://www.instagram.com/as_usual.clothing/"
+                      ></i
+                      ><span>Instagram</span>
                     </a>
                   </li>
                 </ul>
@@ -816,8 +828,10 @@
               <nav class="footer__nav">
                 <ul class="footer__nav-list">
                   <li class="footer__nav-item">
-                    <a href="mailto:contact.laboiserie@gmail.com"
-                      class="footer__nav-link">
+                    <a
+                      href="mailto:contact.laboiserie@gmail.com"
+                      class="footer__nav-link"
+                    >
                       asusualclothing@gmail.com
                     </a>
                   </li>
